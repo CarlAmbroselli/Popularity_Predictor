@@ -4,13 +4,14 @@ from analysis.visualize import Visualize
 import numpy as np
 import nltk
 import os
-import pprint
+import json
 
 def init_nltk():
     if not os.path.exists('nltk'):
         os.makedirs('nltk')
     nltk.data.path.append(os.getcwd() + '/nltk')
     dependencies = ['corpora/stopwords']
+    # dependencies = ['corpora/stopwords', 'maxent_ne_chunker','words', 'punkt', 'averaged_perceptron_tagger', 'tokenizers/punkt/PY3/english.pickle']
     for package in dependencies:
         try:
             nltk.data.find(package)
@@ -19,9 +20,7 @@ def init_nltk():
 
 def load_data(dataset='tiny'):
     train_df = pd.read_csv('data/' + dataset + '/train.csv', sep=',')
-    test_df = pd.read_csv('data/' + dataset + '/test.csv', sep=',')
-    train_df.dropna()
-    test_df.dropna()
+    test_df = pd.read_csv('data/' + dataset + '/train.csv', sep=',')
     return (train_df, test_df)
 
 def execute(dataset='tiny'):
@@ -29,26 +28,24 @@ def execute(dataset='tiny'):
     print("Load Data...")
     train_df, test_df = load_data(dataset)
     predictor = Predictor()
+    predictor.set_target('comment_count', useRegression=True)
     print("Fit...")
     predictor.fit(train_df)
     print("Predict...")
     result = predictor.predict(test_df)
-    result['real'] = test_df['comment_count']
+    result['real'] = predictor.ground_truth(test_df)
     print("Result:")
     print(result.head(20))
     print("Metrics:")
-    pprint.PrettyPrinter().pprint(predictor.metrics())
-    visualizer = Visualize()
-    visualizer.plot_results(test_df['comment_count'], result)
+    print(json.dumps(predictor.metrics(), indent=2))
+    # visualizer = Visualize()
+    # visualizer.plot_results(test_df['comment_count'], result)
 
 
 def main():
     init_nltk()
     datasets = [
-        # '100',
-        # '1000'
-        '10000',
-        # '100000',
+        'tiny',
     ]
     for dataset in datasets:
         execute(dataset)
