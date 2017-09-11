@@ -1,6 +1,6 @@
 from sklearn.metrics import precision_recall_fscore_support
-# from scipy.sparse import hstack
-from numpy import hstack
+from scipy.sparse import hstack
+# from numpy import hstack
 from feature.text_features import TextFeatures
 from feature.ngram_features import NGramFeatures
 from scipy.sparse import csr_matrix
@@ -58,7 +58,10 @@ class Predictor:
         return df['comment_count']
 
     def calculate_feature_matrix(self, df):
-        feature_matrix = hstack([feature[1].extract_features(df) for feature in self.features])
+        features = [feature[1].extract_features(df) for feature in self.features]
+        for feature in features:
+            print(feature.shape)
+        feature_matrix = hstack(features)
         # feature_matrix = self.features[0][1].extract_features(df)
         scaler = MaxAbsScaler()
         scaled_feature_matrix = scaler.fit_transform(feature_matrix)
@@ -67,11 +70,12 @@ class Predictor:
 
     def __init__(self):
         self.features = [
-            # ('text_features', TextFeatures()),
-            ('word2vec', Word2Vec())
+            ('text_features', TextFeatures()),
+            ('word2vec', chWord2Vec()),
+            # ('ngram_features', NGramFeatures())
         ]
 
         self.classifier = [
-            ('svr', SVR()),
+            # ('svr', SVR()),
             ('linear_regression', LinearRegression())
         ]
