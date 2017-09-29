@@ -1,12 +1,16 @@
 import numpy as np
 import spacy
+from feature.features import Features
 
-class SemanticFeatures:
-
+class SemanticFeatures(Features):
   def __init__(self):
-    self.nlp = spacy.load('de')
+    super().__init__('semantic_features')
+    self.nlp = None
 
-  def extract_features(self, df):
+  def _extract_features(self, df):
+    if not self.nlp:
+      self.nlp = spacy.load('de')
+
     features = df['text'].apply(lambda x: self.count_entities(str(x)))
 
     print(features)
@@ -34,7 +38,7 @@ class SemanticFeatures:
         counts[7] += 1
       if ent.label_ == 'WORK_OF_ART': # Titles of books, songs, etc.
         counts[8] += 1
-      if ent.label_ == 'LANUGAGE': # Any named language.
+      if ent.label_ == 'LANGUAGE': # Any named language.
         counts[9] += 1
       if ent.label_ == 'DATE': # Absolute or relative dates or periods.
         counts[10] += 1

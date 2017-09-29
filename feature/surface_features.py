@@ -1,8 +1,11 @@
 import numpy as np
+from feature.features import Features
 
-class SurfaceFeatures:
+class SurfaceFeatures(Features):
+  def __init__(self):
+    super().__init__('surface_features')
 
-  def extract_features(self, df):
+  def _extract_features(self, df):
     features = []
     text = df['text'].apply(lambda x: str(x))
 

@@ -3,9 +3,14 @@ from nltk.stem.snowball import SnowballStemmer
 from nltk.corpus import stopwords
 import numpy as np
 import re
+from feature.features import Features
 
-class Word2Vec:
-    def __init__(self):
+class Word2Vec(Features):
+  def __init__(self):
+    super().__init__('word2vec')
+    self.first_run = True
+
+    def initialize_variables(self):
         # load model
         self.w2v_model = gensim_word2vec.load('model/word2vec/all_lowercased_stemmed')
         # initialize stemmer
@@ -13,11 +18,13 @@ class Word2Vec:
         # grab stopword list
         self.stop = stopwords.words('german')
 
-    def extract_features(self, df):
+    def _extract_features(self, df):
+        if self.first_run:
+            self.initialize_variables()
+            self.first_run = False
         data = self.remove_stop_and_stem(df['text'])
         vectors = np.asarray(list(map(self.acticle_to_vectors, data)))
         return vectors
-
 
     def text_to_wordlist(self, acticle):
         try:

@@ -1,8 +1,11 @@
 import numpy as np
+from feature.features import Features
 
-class CumulativeFeatures:
+class CumulativeFeatures(Features):
+  def __init__(self):
+    super().__init__('cumulative_features')
 
-  def extract_features(self, df):
+  def _extract_features(self, df):
     features = []
     counts = df.groupby(['publish_datestring']).count()['url']
 

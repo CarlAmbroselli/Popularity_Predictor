@@ -19,8 +19,8 @@ def init_nltk():
             nltk.download(package, os.getcwd() + '/nltk')
 
 def load_data(dataset='tiny'):
-    train_df = pd.read_csv('data/' + dataset + '/train.csv', sep=',')
-    test_df = pd.read_csv('data/' + dataset + '/train.csv', sep=',')
+    train_df = pd.read_csv('data/datasets/' + dataset + '/train/articles.csv', sep=',')
+    test_df = pd.read_csv('data/datasets/' + dataset + '/test/articles.csv', sep=',')
     return (train_df, test_df)
 
 def execute(dataset='tiny'):
@@ -35,7 +35,7 @@ def execute(dataset='tiny'):
     result = predictor.predict(test_df)
     result['real'] = predictor.ground_truth(test_df)
     print("Result:")
-    print(result.head(20))
+    print(result.head(5))
     print("Metrics:")
     print(json.dumps(predictor.metrics(), indent=2))
     # visualizer = Visualize()
@@ -45,7 +45,7 @@ def execute(dataset='tiny'):
 def main():
     init_nltk()
     datasets = [
-        'tiny',
+        'Tiny',
     ]
     for dataset in datasets:
         execute(dataset)

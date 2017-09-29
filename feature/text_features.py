@@ -1,8 +1,11 @@
 import numpy as np
+from feature.features import Features
 
-class TextFeatures:
+class TextFeatures(Features):
+  def __init__(self):
+    super().__init__('text_features')
 
-  def extract_features(self, df):
+  def _extract_features(self, df):
     text = df['text'].apply(lambda x: str(x))
     total_length = text.apply(lambda x: len(x))
     num_of_words = text.apply(lambda x: len(x.split()))
