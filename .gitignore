@@ -1,3 +1,8 @@
 data/*
 nltk/*
 figures/*.png
+
+.idea
+venv
+
+**/__pycache__
