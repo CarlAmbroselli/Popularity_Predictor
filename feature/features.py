@@ -17,7 +17,6 @@ class Features:
         else:
             print('Recalculating:', colored(self.file, 'red', attrs=['bold']))
             features = self._extract_features(df)
-            print(features)
             hash = self.filepath(df)
             pickle.dump(features, open(hash, 'wb'))
             return features

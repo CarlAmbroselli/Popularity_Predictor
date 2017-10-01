@@ -112,7 +112,7 @@ class Predictor:
             ('cumulative_features', CumulativeFeatures()),
             ('real_world_features', RealWorldFeatures()),
             ('semantic_features', SemanticFeatures()),
-            # ('text_features', TextFeatures()),
+            ('text_features', TextFeatures()),
             # ('word2vec', Word2Vec()),
             # ('ngram_features', NGramFeatures())
         ]

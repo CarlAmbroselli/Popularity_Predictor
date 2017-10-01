@@ -16,6 +16,9 @@ class SemanticFeatures(Features):
     print(features)
     return np.vstack(features)
 
+  def vocabulary_of_all_named_entities(self):
+
+
   def count_entities(self, text):
     counts = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     doc = self.nlp(text)

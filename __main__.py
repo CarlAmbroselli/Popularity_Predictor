@@ -21,6 +21,8 @@ def init_nltk():
 def load_data(dataset='tiny'):
     train_df = pd.read_csv('data/datasets/' + dataset + '/train/articles.csv', sep=',')
     test_df = pd.read_csv('data/datasets/' + dataset + '/test/articles.csv', sep=',')
+    train_df['has_comments'] = train_df['comment_count'] > 0
+    test_df['has_comments'] = test_df['comment_count'] > 0
     return (train_df, test_df)
 
 def execute(dataset='tiny'):
@@ -28,7 +30,8 @@ def execute(dataset='tiny'):
     print("Load Data...")
     train_df, test_df = load_data(dataset)
     predictor = Predictor()
-    predictor.set_target('comment_count', useRegression=True)
+    predictor.set_target('has_comments', useRegression=False)
+    # predictor.set_target('comment_count', useRegression=True)
     print("Fit...")
     predictor.fit(train_df)
     print("Predict...")
@@ -46,6 +49,9 @@ def main():
     init_nltk()
     datasets = [
         'Tiny',
+        'Tr16Te17-Small',
+        'Tr16Te17',
+        'Tr09-16Te17'
     ]
     for dataset in datasets:
         execute(dataset)
