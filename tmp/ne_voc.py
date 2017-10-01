@@ -18,7 +18,7 @@ else:
   articles = pd.read_csv('../data/datasets/all/articles.csv', sep=',')['text']
   for doc in nlp.pipe(articles, batch_size=1000, n_threads=25):
     for ent in doc.ents:
-      vocabulary.add(vocabulary.text.lower())
+      vocabulary.add(ent.text.lower())
   voc = list(vocabulary)
   pickle.dump(voc, open(filepath,'wb'))
     

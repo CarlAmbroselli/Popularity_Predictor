@@ -17,7 +17,7 @@ class SemanticFeatures(Features):
     return np.vstack(features)
 
   def vocabulary_of_all_named_entities(self):
-
+    pass
 
   def count_entities(self, text):
     counts = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
