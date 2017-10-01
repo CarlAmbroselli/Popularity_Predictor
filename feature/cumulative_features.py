@@ -8,7 +8,7 @@ import os
 class CumulativeFeatures(Features):
   def __init__(self):
     super().__init__('cumulative_features')
-    self.calculated_pairwise_similarity = None
+    self.article_tfidf = None
     self.cached_articles = None
 
   def _extract_features(self, df):
@@ -30,8 +30,10 @@ class CumulativeFeatures(Features):
     articles =  self.articles()
     index = articles[articles['url'] == url].index[0]
     similarity_matrix = self.pairwise_similarity()
-    print(similarity_matrix[index])
-    return np.sum(similarity_matrix[index] > 0.8)
+    similarity = similarity_matrix * similarity_matrix[index].T
+    print(similarity_matrix)
+    print(similarity)
+    return np.sum(similarity > 0.8)
 
   def articles(self):
     if self.cached_articles is None:
@@ -39,17 +41,18 @@ class CumulativeFeatures(Features):
     return self.cached_articles
 
   def pairwise_similarity(self):
-    if self.calculated_pairwise_similarity:
-      return self.calculated_pairwise_similarity
+    if self.article_tfidf:
+      return self.article_tfidf
 
     filepath = 'feature/cache/article_tfidf.pickle'
     if os.path.isfile(filepath):
-      self.calculated_pairwise_similarity = pickle.load(open(filepath, 'rb'))
-      return self.calculated_pairwise_similarity
+      self.article_tfidf = pickle.load(open(filepath, 'rb'))
+      return self.article_tfidf
     else:
       articles = self.articles()
+      print("Calculate tfidf")
       tfidf = TfidfVectorizer().fit_transform(articles['text'])
+      pickle.dump(tfidf, open(filepath, 'wb'))
       # no need to normalize, since Vectorizer will return normalized tf-idf
-      self.calculated_pairwise_similarity = tfidf * tfidf.T
-      pickle.dump(self.calculated_pairwise_similarity, open(filepath, 'wb'))
-      return self.calculated_pairwise_similarity
+      self.article_tfidf = tfidf
+      return self.article_tfidf
