@@ -21,7 +21,10 @@ class SemanticFeatures(Features):
     features = df['text'].apply(lambda x: self.count_entities(str(x)))
     tfidf_features = self.named_entities_tfidf(df['text'])
 
-    return sparse_hstack((np.vstack(features), tfidf_features))
+    used_by_paper = [features[0], features[5], features[3], np.sum(features, axis=1)-(features[0]+features[5]+features[3])]
+
+    # return sparse_hstack((np.vstack(features), tfidf_features))
+    return sparse_hstack((np.vstack(used_by_paper), tfidf_features))
 
   def named_entities_tfidf(self, articles):
     count_vect = CountVectorizer(vocabulary=self.named_entities_list())
@@ -30,10 +33,21 @@ class SemanticFeatures(Features):
     tfidf = tfidf_transformer.fit_transform(counts)
     return tfidf
 
+  def top_entities(self):
+    return {'LOC': ['deutschland', 'deutschen', 'usa', 'us', 'europa', 'berlin', 'deutsche', 'russland', 'türkei', 'hamburg', 'syrien', 'griechenland','frankreich','china', 'europäischen', 'berliner', 'ukraine', 'europäische', 'israel', 'amerikanischen', 'iran', 'afghanistan', 'hamburger', 'russischen', 'großbritannien', 'paris', 'bayern', 'münchen', 'italien', 'schweiz', 'brüssel','russische','london', 'amerikanische', 'deutschlands', 'irak', 'französischen', 'europas', 'new york', 'britischen', 'washington', 'eu', 'britische', 'türkischen', 'türkische', 'amerika', 'ddr', 'moskau', 'österreich', 'spanien'], 'ORG': ['eu','spd','cdu', 'zeit online', 'zeit', 'fdp', 'csu', 'afd', 'google', 'nato', 'is', 'union','vw', 'apple', 'ezb', 'facebook', 'nsa', 'grünen', 'new york times', 'iwf', 'npd', 'europäischen union', 'hsv', 'ard', 'opel', 'bnd', 'un','bmw','youtube', 'amazon', 'hamas', 'fc bayern', 'microsoft', 'grüne', 'volkswagen', 'lufthansa', 'zdf', 'pkk', 'bbc', 'daimler', 'champions league', 'bvb', 'akp', 'siemens', 'süddeutschen zeitung', 'deutsche bank', 'cnn', 'audi', 'washingtonpost','adac'], 'PERSON': ['merkel', 'angela merkel', 'obama', 'trump', 'zeit', 'barack obama', 'putin', 'erdoğan', 'assad', 'gabriel', 'donald trump', 'müller', 'trumps', 'schäuble', 'wladimir putin', 'clinton', 'sigmar gabriel','westerwelle','wolfgang schäuble', 'steinmeier', 'obamas', 'seehofer', 'wulff', 'jean', 'hans', 'schwarz', 'schmidt', 'al', 'guido westerwelle', 'schulz', 'merkels', 'hillary clinton', 'horst seehofer', 'ulf weigelt', 'de maizière', 'hartz', 'tsipras','netanjahu', 'friedrich', 'gauck', 'snowden', 'rösler', 'thomas de maizière', 'recep tayyip erdoğan', 'hitler', 'franziskus', 'sarkozy','hollande', 'berlusconi', 'cameron']}
+
   def count_entities(self, text):
     counts = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     doc = self.nlp(text)
+    top_entities = self.top_entities()
+    top_entities_count = [0] * 150
     for ent in doc.ents:
+      if ent.text in top_entities['LOC']:
+        top_entities_count[top_entities['LOC'].index(ent.text)] += 1
+      if ent.text in top_entities['ORG']:
+        top_entities_count[top_entities['ORG'].index(ent.text) + 50] += 1
+      if ent.text in top_entities['PERSON']:
+        top_entities_count[top_entities['PERSON'].index(ent.text) + 100] += 1
       if ent.label_ == 'PERSON': # People, including fictional.
         counts[0] += 1
       if ent.label_ == 'NORP': # Nationalities or religious or political groups.
@@ -68,7 +82,7 @@ class SemanticFeatures(Features):
         counts[15] += 1
       if ent.label_ == 'CARDINAL': # Numerals that do not fall under another type.
         counts[16] += 1
-    return counts
+    return counts + top_entities_count
 
   def named_entities_list(self):
     if self.ne_vocabulary:
