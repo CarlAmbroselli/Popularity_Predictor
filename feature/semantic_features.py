@@ -21,10 +21,12 @@ class SemanticFeatures(Features):
     features = df['text'].apply(lambda x: self.count_entities(str(x)))
     tfidf_features = self.named_entities_tfidf(df['text'])
 
-    used_by_paper = [features[0], features[5], features[3], np.sum(features, axis=1)-(features[0]+features[5]+features[3])]
+    features = np.vstack(features)
+
+    used_by_paper = np.hstack([features[0], features[5], features[3], np.sum(features, axis=1)-(features[0]+features[5]+features[3])])
 
     # return sparse_hstack((np.vstack(features), tfidf_features))
-    return sparse_hstack((np.vstack(used_by_paper), tfidf_features))
+    return sparse_hstack(used_by_paper, tfidf_features)
 
   def named_entities_tfidf(self, articles):
     count_vect = CountVectorizer(vocabulary=self.named_entities_list())
