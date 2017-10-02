@@ -7,6 +7,7 @@ import pickle
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from scipy.sparse import hstack as sparse_hstack
+import code
 
 class SemanticFeatures(Features):
   def __init__(self):
@@ -19,14 +20,14 @@ class SemanticFeatures(Features):
       self.nlp = spacy.load('de')
 
     features = df['text'].apply(lambda x: self.count_entities(str(x)))
-    tfidf_features = self.named_entities_tfidf(df['text'])
+    # tfidf_features = self.named_entities_tfidf(df['text']) #not used in paper
 
     features = np.vstack(features)
-
-    used_by_paper = np.hstack([features[0], features[5], features[3], np.sum(features, axis=1)-(features[0]+features[5]+features[3])])
+    used_by_paper = [features[:,0], features[:,5], features[:,3], np.sum(features, axis=1)-(np.sum((features[:,0],features[:,5],features[:,3]), axis=0))]
+    used_by_paper = np.vstack(used_by_paper).T
 
     # return sparse_hstack((np.vstack(features), tfidf_features))
-    return sparse_hstack(used_by_paper, tfidf_features)
+    return np.hstack((used_by_paper, features[:,17:]))
 
   def named_entities_tfidf(self, articles):
     count_vect = CountVectorizer(vocabulary=self.named_entities_list())
