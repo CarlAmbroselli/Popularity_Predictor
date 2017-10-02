@@ -19,6 +19,7 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import normalize, MaxAbsScaler
 from sklearn.metrics import mean_squared_error
+from sklearn.metrics import accuracy_score
 
 
 class Predictor:
@@ -53,6 +54,7 @@ class Predictor:
                 average='binary'
             )
             metrics[classifier[0]] = dict(zip(['precision', 'recall', 'f-score', 'support'], scores))
+            metrics[classifier[0]]['accuracy'] = accuracy_score(self.ground_truth(df), predictions[classifier[0]])
 
         self._metrics = metrics
         return metrics
