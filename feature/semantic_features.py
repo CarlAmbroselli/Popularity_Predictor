@@ -1,23 +1,34 @@
 import numpy as np
 import spacy
 from feature.features import Features
+import pandas as pd
+import os
+import pickle
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
+from scipy.sparse import hstack as sparse_hstack
 
 class SemanticFeatures(Features):
   def __init__(self):
     super().__init__('semantic_features')
     self.nlp = None
+    self.ne_vocabulary = None
 
   def _extract_features(self, df):
     if not self.nlp:
       self.nlp = spacy.load('de')
 
     features = df['text'].apply(lambda x: self.count_entities(str(x)))
+    tfidf_features = self.named_entities_tfidf(df['text'])
 
-    print(features)
-    return np.vstack(features)
+    return sparse_hstack((np.vstack(features), tfidf_features))
 
-  def vocabulary_of_all_named_entities(self):
-    pass
+  def named_entities_tfidf(self, articles):
+    count_vect = CountVectorizer(vocabulary=self.named_entities_list())
+    tfidf_transformer = TfidfTransformer()
+    counts = count_vect.fit_transform(articles)
+    tfidf = tfidf_transformer.fit_transform(counts)
+    return tfidf
 
   def count_entities(self, text):
     counts = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
@@ -58,3 +69,25 @@ class SemanticFeatures(Features):
       if ent.label_ == 'CARDINAL': # Numerals that do not fall under another type.
         counts[16] += 1
     return counts
+
+  def named_entities_list(self):
+    if self.ne_vocabulary:
+      return self.ne_vocabulary
+    filepath = 'feature/cache/named_entities_vocabulary.pickle'
+    if os.path.isfile(filepath):
+      self.ne_vocabulary = pickle.load(open(filepath, 'rb'))
+      return self.ne_vocabulary
+    else:
+      nlp = spacy.load('de')
+      vocabulary = set()
+
+      articles = pd.read_csv('../data/datasets/all/articles.csv', sep=',')['text']
+      for doc in nlp.pipe(articles, batch_size=1000, n_threads=25):
+        for ent in doc.ents:
+          vocabulary.add(ent.text.lower())
+      voc = list(vocabulary)
+      pickle.dump(voc, open(filepath, 'wb'))
+      self.ne_vocabulary = voc
+      return voc
+
+

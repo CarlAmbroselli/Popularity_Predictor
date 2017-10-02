@@ -4,6 +4,7 @@ from feature.features import Features
 from sklearn.feature_extraction.text import TfidfVectorizer
 import pickle
 import os
+import itertools
 
 class CumulativeFeatures(Features):
   def __init__(self):
@@ -19,29 +20,27 @@ class CumulativeFeatures(Features):
     features.append(art_same_hr)
 
     dupes_int_cnt = df['url'].apply(lambda x: self.near_duplicates(x))
-    features.append(dupes_int_cnt)
 
     # The following features were not implemented:
     # dupes_ext_cnt
 
-    return np.vstack(features).T
+    return np.hstack((np.vstack(features).T, np.vstack(dupes_int_cnt)))
 
   def near_duplicates(self, url):
     articles =  self.articles()
-    index = articles[articles['url'] == url].index[0]
+    index = articles['url'].searchsorted(url)
     similarity_matrix = self.pairwise_similarity()
     similarity = similarity_matrix * similarity_matrix[index].T
-    print(similarity_matrix)
-    print(similarity)
-    return np.sum(similarity > 0.8)
+    return [np.sum(similarity > 0.4), np.sum(similarity > 0.5), np.sum(similarity > 0.6)]
 
   def articles(self):
     if self.cached_articles is None:
       self.cached_articles = pd.read_csv('data/datasets/all/articles.csv', sep=',')
+      self.cached_articles = self.cached_articles.sort_values('url')
     return self.cached_articles
 
   def pairwise_similarity(self):
-    if self.article_tfidf:
+    if self.article_tfidf is not None:
       return self.article_tfidf
 
     filepath = 'feature/cache/article_tfidf.pickle'
