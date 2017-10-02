@@ -30,7 +30,7 @@ class SurfaceFeatures(Features):
     art_char_length = text.apply(lambda x: len(x))
     features.append(art_char_length)
 
-    num_categories = df['tags'].apply(lambda x: x.count(',')) + 1
+    num_categories = df['tags'].apply(lambda x: str(x).count(',')) + 1
     features.append(num_categories)
 
     authors_cnt = df['author'].apply(lambda x: (len(str(x)) > 0) + str(x).count(',')) + 1
