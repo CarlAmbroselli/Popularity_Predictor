@@ -9,6 +9,8 @@ from feature.surface_features import SurfaceFeatures
 from feature.cumulative_features import CumulativeFeatures
 from feature.real_world_features import RealWorldFeatures
 from feature.semantic_features import SemanticFeatures
+from feature.t_density_features import TDensityFeatures
+from feature.subjectivity_features import SubjectivityFeatures
 from scipy.sparse import csr_matrix, issparse
 from feature.word2vec import Word2Vec
 from classifier.svr import SVR
@@ -110,11 +112,13 @@ class Predictor:
 
     def __init__(self):
         self.features = [
-            ('surface_features', SurfaceFeatures()),
-            ('cumulative_features', CumulativeFeatures()),
-            ('real_world_features', RealWorldFeatures()),
+            # ('surface_features', SurfaceFeatures()),
+            # ('cumulative_features', CumulativeFeatures()),
+            # ('real_world_features', RealWorldFeatures()),
             ('semantic_features', SemanticFeatures()),
-            ('text_features', TextFeatures()),
+            # ('text_features', TextFeatures()),
+            ('t_density_features', TDensityFeatures()),
+            ('subjectivity_features', SubjectivityFeatures()),
             # ('word2vec', Word2Vec()),
             # ('ngram_features', NGramFeatures())
         ]

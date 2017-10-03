@@ -49,9 +49,9 @@ def main():
     init_nltk()
     datasets = [
         'Tiny',
-        'Tr16Te17-Small',
-        'Tr16Te17',
-        'Tr09-16Te17'
+        # 'Tr16Te17-Small',
+        # 'Tr16Te17',
+        # 'Tr09-16Te17'
     ]
     for dataset in datasets:
         execute(dataset)

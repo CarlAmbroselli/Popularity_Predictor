@@ -15,6 +15,7 @@ class TextFeatures(Features):
     top_term_tf = self.load_tf()
 
     # todo: Better solve this!
+    df = df.copy(deep=True)
     df['ressort'].fillna('mobilitaet', inplace=True)
 
     features = df.apply(lambda x: self.extract_term_frequencies(str(x['text']), top_term_tf[x['ressort']]), axis=1)

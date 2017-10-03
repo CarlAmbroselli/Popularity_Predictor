@@ -3,6 +3,8 @@ import numpy as np
 import os.path
 import pickle
 from termcolor import colored
+from glob import glob
+import os
 
 
 class Features:
@@ -19,6 +21,7 @@ class Features:
             features = self._extract_features(df)
             hash = self.filepath(df)
             pickle.dump(features, open(hash, 'wb'))
+            print('saved features at:', hash)
             return features
 
     def _extract_features(self, df):
