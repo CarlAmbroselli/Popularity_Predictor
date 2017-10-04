@@ -112,15 +112,15 @@ class Predictor:
 
     def __init__(self):
         self.features = [
-            # ('surface_features', SurfaceFeatures()),
-            # ('cumulative_features', CumulativeFeatures()),
-            # ('real_world_features', RealWorldFeatures()),
+            ('surface_features', SurfaceFeatures()),
+            ('cumulative_features', CumulativeFeatures()),
+            ('real_world_features', RealWorldFeatures()),
             ('semantic_features', SemanticFeatures()),
-            # ('text_features', TextFeatures()),
+            ('text_features', TextFeatures()),
             ('t_density_features', TDensityFeatures()),
             ('subjectivity_features', SubjectivityFeatures()),
             # ('word2vec', Word2Vec()),
-            # ('ngram_features', NGramFeatures())
+            ('ngram_features', NGramFeatures())
         ]
 
         self.classifier = [

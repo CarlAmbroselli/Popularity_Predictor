@@ -20,25 +20,12 @@ class SemanticFeatures(Features):
       self.nlp = spacy.load('de')
 
     features = df['text'].apply(lambda x: self.count_entities(str(x)))
-    # tfidf_features = self.named_entities_tfidf(df['text']) #not used in paper
-
     features = np.vstack(features)
+    tfidf_features = self.named_entities_tfidf(df['text'])
 
-    # ===========================
-    #  tsagias paper
-    # ===========================
-    # used_by_paper = [features[:,0], features[:,5], features[:,3], np.sum(features, axis=1)-(np.sum((features[:,0],features[:,5],features[:,3]), axis=0))]
-    # used_by_paper = np.vstack(used_by_paper).T
-    #
-    # # return sparse_hstack((np.vstack(features), tfidf_features))
-    # return np.hstack((used_by_paper, features[:,17:]))
+    resulting_features = [tfidf_features, features, np.vstack(np.sum(features, axis=1)), np.vstack(np.max(features, axis=1)), np.vstack(np.average(features, axis=1))]
 
-    # ===========================
-    #  bandari paper
-    # ===========================
-
-    used_by_paper = [np.vstack(np.sum(features, axis=1)), np.vstack(np.max(features, axis=1)), np.vstack(np.average(features, axis=1))]
-    return np.hstack(used_by_paper)
+    return sparse_hstack(resulting_features)
 
 
   def named_entities_tfidf(self, articles):
@@ -110,7 +97,7 @@ class SemanticFeatures(Features):
       nlp = spacy.load('de')
       vocabulary = set()
 
-      articles = pd.read_csv('../data/datasets/all/articles.csv', sep=',')['text']
+      articles = pd.read_csv('data/datasets/all/articles.csv', sep=',')['text']
       for doc in nlp.pipe(articles, batch_size=1000, n_threads=25):
         for ent in doc.ents:
           vocabulary.add(ent.text.lower())

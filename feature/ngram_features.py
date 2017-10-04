@@ -1,6 +1,7 @@
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_extraction.text import CountVectorizer
 import numpy as np
+from nltk.corpus import stopwords
 from feature.features import Features
 
 class NGramFeatures(Features):
@@ -11,7 +12,7 @@ class NGramFeatures(Features):
   def _extract_features(self, df):
     features = None
     if self.first_run:
-      self.count_vectorizer = CountVectorizer(ngram_range=(1, 3))
+      self.count_vectorizer = CountVectorizer(ngram_range=(1, 3), min_df=2, stop_words=stopwords.words('german'))
       self.tfidf_transformer = TfidfTransformer()
       counts = self.count_vectorizer.fit_transform(df["text"])
       features = self.tfidf_transformer.fit_transform(counts)
