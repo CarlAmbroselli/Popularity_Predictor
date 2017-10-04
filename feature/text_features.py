@@ -66,7 +66,7 @@ class TextFeatures(Features):
       count_vect = CountVectorizer()
       tfidf_transformer = TfidfTransformer()
 
-      articles = pd.read_csv('data/datasets/all/articles.csv', sep=',')[['text', 'ressort']]
+      articles = pd.read_csv('data/datasets/Tr09-16Te17/train/articles.csv', sep=',')[['text', 'ressort']]
 
       # Extract urlressort
       # ==========================

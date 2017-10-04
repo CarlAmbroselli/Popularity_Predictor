@@ -40,3 +40,12 @@ class Features:
         filehash = hasher.hexdigest()[:8]
 
         return 'feature/cache/' + hash + '_' + self.file + '_' + filehash + '.pickle'
+
+    def cleanup(self, df):
+        filename, df_hash, file, filehash = self.filepath(df)
+        for f in glob('feature/cache/' + df_hash + '_' + file + '_' + '*' + '.pickle'):
+            if f != filename:
+                os.remove(f)
+
+    def reset(self):
+        pass
