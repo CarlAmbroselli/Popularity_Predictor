@@ -17,4 +17,13 @@ class SubjectivityFeatures(Features):
 
       features = [sentence.sentiment.subjectivity for sentence in blob.sentences][:30]
       features += [subjectivity] * (30 - len(features))
-      return np.append(features, [[subjectivity]])
+
+
+      polarity = np.average([sentence.sentiment.polarity for sentence in blob.sentences])
+
+      polarity_features = [sentence.sentiment.polarity for sentence in blob.sentences][:30]
+      polarity_features += [polarity] * (30 - len(polarity_features))
+
+      result = np.concatenate((features, [subjectivity], polarity_features, [polarity]))
+
+      return result
