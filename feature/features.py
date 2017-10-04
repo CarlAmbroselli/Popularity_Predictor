@@ -14,21 +14,22 @@ class Features:
 
     def extract_features(self, df):
         cached = self.load_cached(df)
+        self.cleanup(df)
         if cached is not None:
             return cached
         else:
             print('Recalculating:', colored(self.file, 'red', attrs=['bold']))
             features = self._extract_features(df)
-            hash = self.filepath(df)
-            pickle.dump(features, open(hash, 'wb'))
-            print('saved features at:', hash)
+            filename = self.filepath(df)[0]
+            pickle.dump(features, open(filename, 'wb'))
+            print('saved features at:', filename)
             return features
 
     def _extract_features(self, df):
         raise Exception('Unsupported Method', 'The child feature generator should overwrite this method.')
 
     def load_cached(self, df):
-        filepath = self.filepath(df)
+        filepath = self.filepath(df)[0]
         if os.path.isfile(filepath):
             return pickle.load(open(filepath, 'rb'))
         else:
@@ -42,4 +43,11 @@ class Features:
             hasher.update(buf)
         filehash = hasher.hexdigest()[:8]
 
-        return 'feature/cache/' + hash + '_' + self.file + '_' + filehash + '.pickle'
+        return ('feature/cache/' + hash + '_' + self.file + '_' + filehash + '.pickle', hash, self.file, filehash)
+
+    def cleanup(self, df):
+        filename, df_hash, file, filehash = self.filepath(df)
+        for f in glob('feature/cache/' + df_hash + '_' + file + '_' + '*' + '.pickle'):
+            if f != filename:
+                os.remove(f)
+
