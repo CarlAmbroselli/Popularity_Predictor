@@ -20,7 +20,7 @@ class Doc2VecFeatures(Features):
 
   def _extract_features(self, df):
     model = self.doc2vec_model()
-    documents = self.get_doc(df['text'])
+    documents = self.get_doc(df['text'], return_tagged_documents=False)
 
     features = np.array([model.infer_vector(doc_words=doc, steps=20) for doc in documents])
 
@@ -29,12 +29,12 @@ class Doc2VecFeatures(Features):
   def doc2vec_model(self):
     if self.model is not None:
       return self.model
-    print('Recalculating Doc2Vec Model')
     filepath = 'feature/cache/doc2vec'
     if os.path.isfile(filepath):
       self.model = doc2vec.Doc2Vec.load(filepath)
       return self.model
     else:
+      print('Recalculating Doc2Vec Model')
       print('Loading documents')
       doc_list = pd.read_csv('data/datasets/Tr09-16Te17/train/articles.csv', sep=',')['text']
       documents = self.get_doc(doc_list)
@@ -47,7 +47,7 @@ class Doc2VecFeatures(Features):
       self.model = model
       return self.model
 
-  def get_doc(self, doc_list):
+  def get_doc(self, doc_list, return_tagged_documents=True, show_progress=False):
     tokenizer = RegexpTokenizer(r'\w+')
     de_stop = stopwords.words('german')
     stemmer = SnowballStemmer("german")
@@ -55,9 +55,11 @@ class Doc2VecFeatures(Features):
     taggeddoc = []
 
     texts = []
-    bar = progressbar.ProgressBar(max_value=len(doc_list))
+    if show_progress:
+      bar = progressbar.ProgressBar(max_value=len(doc_list))
     for index, i in enumerate(doc_list):
-      bar.update(index)
+      if show_progress:
+        bar.update(index)
       # clean and tokenize document string
       raw = i.lower()
       tokens = tokenizer.tokenize(raw)
@@ -76,7 +78,10 @@ class Doc2VecFeatures(Features):
       # add tokens to list
       texts.append(length_tokens)
 
-      td = TaggedDocument(gensim.utils.to_unicode(str.encode(' '.join(stemmed_tokens))).split(), str(index))
+      if return_tagged_documents:
+        td = TaggedDocument(gensim.utils.to_unicode(str.encode(' '.join(stemmed_tokens))).split(), str(index))
+      else:
+        td = gensim.utils.to_unicode(str.encode(' '.join(stemmed_tokens))).split()
       taggeddoc.append(td)
 
     return taggeddoc

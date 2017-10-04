@@ -8,3 +8,4 @@ venv
 **/__pycache__
 
 feature/cache/*.pickle
+feature/cache/doc2vec*
