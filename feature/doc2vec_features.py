@@ -38,9 +38,10 @@ class Doc2VecFeatures(Features):
       print('Loading documents')
       doc_list = pd.read_csv('data/datasets/Tr09-16Te17/train/articles.csv', sep=',')['text']
       documents = self.get_doc(doc_list)
-      print('Training model using {} cores'.format(int(multiprocessing.cpu_count()/2)))
-      model = doc2vec.Doc2Vec(documents, size=100, window=8, min_count=5, workers=int(multiprocessing.cpu_count()/2))
-
+      cores = 20 if multiprocessing.cpu_count() > 4 else 3
+      print('Training model using {} cores'.format(cores))
+      model = doc2vec.Doc2Vec(documents, size=100, window=8, min_count=5, workers=cores, iter=20)
+      model.save(filepath + '.bak')
       model.delete_temporary_training_data(keep_doctags_vectors=True, keep_inference=True)
       model.save(filepath)
       self.model = model
