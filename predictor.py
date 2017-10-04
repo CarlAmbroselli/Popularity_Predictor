@@ -13,6 +13,7 @@ from feature.t_density_features import TDensityFeatures
 from feature.subjectivity_features import SubjectivityFeatures
 from scipy.sparse import csr_matrix, issparse
 from feature.word2vec import Word2Vec
+from feature.doc2vec_features import Doc2VecFeatures
 from classifier.svr import SVR
 from classifier.linear_regression import LinearRegression
 # from classifier.naive_bayes import NaiveBayes
@@ -120,7 +121,8 @@ class Predictor:
             ('t_density_features', TDensityFeatures()),
             ('subjectivity_features', SubjectivityFeatures()),
             # ('word2vec', Word2Vec()),
-            ('ngram_features', NGramFeatures())
+            ('ngram_features', NGramFeatures()),
+            ('doc2vec_features', Doc2VecFeatures())
         ]
 
         self.classifier = [
