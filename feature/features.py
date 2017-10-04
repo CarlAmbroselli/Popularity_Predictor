@@ -51,3 +51,6 @@ class Features:
             if f != filename:
                 os.remove(f)
 
+    def reset(self):
+        pass
+

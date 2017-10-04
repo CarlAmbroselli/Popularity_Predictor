@@ -7,6 +7,7 @@ import pickle
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from scipy.sparse import hstack as sparse_hstack
+import operator
 import code
 
 class SemanticFeatures(Features):
@@ -14,6 +15,7 @@ class SemanticFeatures(Features):
     super().__init__('semantic_features')
     self.nlp = None
     self.ne_vocabulary = None
+    self.topwords = None
 
   def _extract_features(self, df):
     if not self.nlp:
@@ -36,7 +38,37 @@ class SemanticFeatures(Features):
     return tfidf
 
   def top_entities(self):
-    return {'LOC': ['deutschland', 'deutschen', 'usa', 'us', 'europa', 'berlin', 'deutsche', 'russland', 'türkei', 'hamburg', 'syrien', 'griechenland','frankreich','china', 'europäischen', 'berliner', 'ukraine', 'europäische', 'israel', 'amerikanischen', 'iran', 'afghanistan', 'hamburger', 'russischen', 'großbritannien', 'paris', 'bayern', 'münchen', 'italien', 'schweiz', 'brüssel','russische','london', 'amerikanische', 'deutschlands', 'irak', 'französischen', 'europas', 'new york', 'britischen', 'washington', 'eu', 'britische', 'türkischen', 'türkische', 'amerika', 'ddr', 'moskau', 'österreich', 'spanien'], 'ORG': ['eu','spd','cdu', 'zeit online', 'zeit', 'fdp', 'csu', 'afd', 'google', 'nato', 'is', 'union','vw', 'apple', 'ezb', 'facebook', 'nsa', 'grünen', 'new york times', 'iwf', 'npd', 'europäischen union', 'hsv', 'ard', 'opel', 'bnd', 'un','bmw','youtube', 'amazon', 'hamas', 'fc bayern', 'microsoft', 'grüne', 'volkswagen', 'lufthansa', 'zdf', 'pkk', 'bbc', 'daimler', 'champions league', 'bvb', 'akp', 'siemens', 'süddeutschen zeitung', 'deutsche bank', 'cnn', 'audi', 'washingtonpost','adac'], 'PERSON': ['merkel', 'angela merkel', 'obama', 'trump', 'zeit', 'barack obama', 'putin', 'erdoğan', 'assad', 'gabriel', 'donald trump', 'müller', 'trumps', 'schäuble', 'wladimir putin', 'clinton', 'sigmar gabriel','westerwelle','wolfgang schäuble', 'steinmeier', 'obamas', 'seehofer', 'wulff', 'jean', 'hans', 'schwarz', 'schmidt', 'al', 'guido westerwelle', 'schulz', 'merkels', 'hillary clinton', 'horst seehofer', 'ulf weigelt', 'de maizière', 'hartz', 'tsipras','netanjahu', 'friedrich', 'gauck', 'snowden', 'rösler', 'thomas de maizière', 'recep tayyip erdoğan', 'hitler', 'franziskus', 'sarkozy','hollande', 'berlusconi', 'cameron']}
+    if self.topwords is not None:
+      return self.topwords
+    filepath = 'feature/cache/top_named_entities_per_category.pickle'
+    if os.path.isfile(filepath):
+      return pickle.load(open(filepath, 'rb'))
+    else:
+      nlp = spacy.load('de')
+      vocabulary = {}
+
+      articles = pd.read_csv('data/datasets/Tr09-16Te17/train/articles.csv', sep=',')['text']
+      print('read articles')
+
+      for doc in nlp.pipe(articles, batch_size=1000, n_threads=25):
+        for ent in doc.ents:
+          if ent.label_ not in vocabulary:
+            vocabulary[ent.label_] = {}
+          if ent.text.lower() not in vocabulary[ent.label_]:
+            vocabulary[ent.label_][ent.text.lower()] = 1
+          else:
+            vocabulary[ent.label_][ent.text.lower()] += 1
+
+      topwords = {}
+      print('extracting topwords...')
+      for key, value in vocabulary.items():
+        topwords[key] = list(dict(sorted(value.items(), key=operator.itemgetter(1), reverse=True)[:50]).keys())
+
+      pickle.dump(topwords, open(filepath, 'wb'))
+      self.topwords = topwords
+      return self.topwords
+
+    # return {'LOC': ['deutschland', 'deutschen', 'usa', 'us', 'europa', 'berlin', 'deutsche', 'russland', 'türkei', 'hamburg', 'syrien', 'griechenland','frankreich','china', 'europäischen', 'berliner', 'ukraine', 'europäische', 'israel', 'amerikanischen', 'iran', 'afghanistan', 'hamburger', 'russischen', 'großbritannien', 'paris', 'bayern', 'münchen', 'italien', 'schweiz', 'brüssel','russische','london', 'amerikanische', 'deutschlands', 'irak', 'französischen', 'europas', 'new york', 'britischen', 'washington', 'eu', 'britische', 'türkischen', 'türkische', 'amerika', 'ddr', 'moskau', 'österreich', 'spanien'], 'ORG': ['eu','spd','cdu', 'zeit online', 'zeit', 'fdp', 'csu', 'afd', 'google', 'nato', 'is', 'union','vw', 'apple', 'ezb', 'facebook', 'nsa', 'grünen', 'new york times', 'iwf', 'npd', 'europäischen union', 'hsv', 'ard', 'opel', 'bnd', 'un','bmw','youtube', 'amazon', 'hamas', 'fc bayern', 'microsoft', 'grüne', 'volkswagen', 'lufthansa', 'zdf', 'pkk', 'bbc', 'daimler', 'champions league', 'bvb', 'akp', 'siemens', 'süddeutschen zeitung', 'deutsche bank', 'cnn', 'audi', 'washingtonpost','adac'], 'PERSON': ['merkel', 'angela merkel', 'obama', 'trump', 'zeit', 'barack obama', 'putin', 'erdoğan', 'assad', 'gabriel', 'donald trump', 'müller', 'trumps', 'schäuble', 'wladimir putin', 'clinton', 'sigmar gabriel','westerwelle','wolfgang schäuble', 'steinmeier', 'obamas', 'seehofer', 'wulff', 'jean', 'hans', 'schwarz', 'schmidt', 'al', 'guido westerwelle', 'schulz', 'merkels', 'hillary clinton', 'horst seehofer', 'ulf weigelt', 'de maizière', 'hartz', 'tsipras','netanjahu', 'friedrich', 'gauck', 'snowden', 'rösler', 'thomas de maizière', 'recep tayyip erdoğan', 'hitler', 'franziskus', 'sarkozy','hollande', 'berlusconi', 'cameron']}
 
   def count_entities(self, text):
     counts = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
@@ -97,7 +129,7 @@ class SemanticFeatures(Features):
       nlp = spacy.load('de')
       vocabulary = set()
 
-      articles = pd.read_csv('data/datasets/all/articles.csv', sep=',')['text']
+      articles = pd.read_csv('data/datasets/Tr09-16Te17/train/articles.csv', sep=',')['text']
       for doc in nlp.pipe(articles, batch_size=1000, n_threads=25):
         for ent in doc.ents:
           vocabulary.add(ent.text.lower())

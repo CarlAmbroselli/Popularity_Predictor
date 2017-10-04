@@ -36,7 +36,7 @@ class Doc2VecFeatures(Features):
       return self.model
     else:
       print('Loading documents')
-      doc_list = pd.read_csv('data/datasets/all/articles.csv', sep=',')['text']
+      doc_list = pd.read_csv('data/datasets/Tr09-16Te17/train/articles.csv', sep=',')['text']
       documents = self.get_doc(doc_list)
       print('Training model using {} cores'.format(int(multiprocessing.cpu_count()/2)))
       model = doc2vec.Doc2Vec(documents, size=100, window=8, min_count=5, workers=int(multiprocessing.cpu_count()/2))
