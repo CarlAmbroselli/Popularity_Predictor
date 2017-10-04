@@ -20,8 +20,9 @@ class Doc2VecFeatures(Features):
 
   def _extract_features(self, df):
     model = self.doc2vec_model()
+    documents = self.get_doc(df['text'])
 
-    features = df['text'].apply(lambda x: len(x))
+    features = np.array([model.infer_vector(doc_words=doc, steps=20) for doc in documents])
 
     return features
 
@@ -35,16 +36,17 @@ class Doc2VecFeatures(Features):
       return self.model
     else:
       print('Loading documents')
-      documents = self.get_doc()
+      doc_list = pd.read_csv('data/datasets/all/articles.csv', sep=',')['text']
+      documents = self.get_doc(doc_list)
       print('Training model using {} cores'.format(int(multiprocessing.cpu_count()/2)))
       model = doc2vec.Doc2Vec(documents, size=100, window=8, min_count=5, workers=int(multiprocessing.cpu_count()/2))
+
       model.delete_temporary_training_data(keep_doctags_vectors=True, keep_inference=True)
       model.save(filepath)
       self.model = model
       return self.model
 
-  def get_doc(self):
-    doc_list = pd.read_csv('data/datasets/all/articles.csv', sep=',')['text']
+  def get_doc(self, doc_list):
     tokenizer = RegexpTokenizer(r'\w+')
     de_stop = stopwords.words('german')
     stemmer = SnowballStemmer("german")
