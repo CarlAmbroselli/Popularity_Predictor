@@ -6,9 +6,9 @@ import re
 from feature.features import Features
 
 class Word2Vec(Features):
-  def __init__(self):
-    super().__init__('word2vec')
-    self.first_run = True
+    def __init__(self):
+        super().__init__('word2vec')
+        self.first_run = True
 
     def initialize_variables(self):
         # load model
@@ -22,9 +22,16 @@ class Word2Vec(Features):
         if self.first_run:
             self.initialize_variables()
             self.first_run = False
-        data = self.remove_stop_and_stem(df['text'])
-        vectors = np.asarray(list(map(self.acticle_to_vectors, data)))
-        return vectors
+        data = [self.remove_stop_and_stem(x) for x in [
+            df['next_read_title'],
+            df['next_read_kicker'],
+            df['title'],
+            df['supertitle'],
+            df['teaser_text'],
+            df['teaser_title']
+        ]]
+        vectors = [np.asarray(list(map(self.acticle_to_vectors, d))) for d in data]
+        return np.hstack(vectors)
 
     def text_to_wordlist(self, acticle):
         try:

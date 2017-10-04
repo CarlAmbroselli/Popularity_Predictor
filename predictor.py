@@ -121,7 +121,7 @@ class Predictor:
             ('text_features', TextFeatures()),
             ('t_density_features', TDensityFeatures()),
             ('subjectivity_features', SubjectivityFeatures()),
-            # ('word2vec', Word2Vec()),
+            ('word2vec', Word2Vec()),
             ('ngram_features', NGramFeatures()),
             ('doc2vec_features', Doc2VecFeatures()),
             ('meta_features', MetaFeatures())
