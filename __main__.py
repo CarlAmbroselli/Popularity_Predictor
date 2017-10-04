@@ -25,6 +25,21 @@ def load_data(dataset='tiny'):
     test_df['has_comments'] = test_df['comment_count'] > 0
     return (train_df, test_df)
 
+def execute_individual(dataset='tiny'):
+    print("Using dataset", dataset)
+    print("Load Data...")
+    train_df, test_df = load_data(dataset)
+    predictor = Predictor()
+    predictor.set_target('comment_count', useRegression=True)
+    features = predictor.features
+    for feature in features:
+        print("Feature: {}".format(feature[0]))
+        predictor.features = [feature]
+        predictor.fit(train_df)
+        result = predictor.predict(test_df)
+        result['real'] = predictor.ground_truth(test_df)
+        print(json.dumps(predictor.metrics(), indent=2))
+
 def execute(dataset='tiny'):
     print("Using dataset", dataset)
     print("Load Data...")
@@ -54,7 +69,8 @@ def main():
         'Tr09-16Te17'
     ]
     for dataset in datasets:
-        execute(dataset)
+        # execute(dataset)
+        execute_individual(dataset)
 
 
 if __name__ == '__main__':
