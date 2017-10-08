@@ -24,6 +24,12 @@ class SurfaceFeatures(Features):
     hour = df['hour']
     features.append(hour)
 
+    year = df['year']
+    features.append(year)
+
+    publish_datestring = df['publish_datestring']
+    features.append(publish_datestring)
+
     first_half_hour = df['minute'] < 30
     features.append(first_half_hour)
 
