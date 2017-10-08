@@ -14,6 +14,7 @@ from feature.subjectivity_features import SubjectivityFeatures
 from scipy.sparse import csr_matrix, issparse
 from feature.word2vec import Word2Vec
 from feature.doc2vec_features import Doc2VecFeatures
+from feature.topic_features import TopicFeatures
 from feature.meta_features import MetaFeatures
 from classifier.svr import SVR
 from classifier.linear_regression import LinearRegression
@@ -124,7 +125,8 @@ class Predictor:
             ('word2vec', Word2Vec()),
             ('ngram_features', NGramFeatures()),
             ('doc2vec_features', Doc2VecFeatures()),
-            ('meta_features', MetaFeatures())
+            ('meta_features', MetaFeatures()),
+            ('topic_features', TopicFeatures())
         ]
 
         self.classifier = [

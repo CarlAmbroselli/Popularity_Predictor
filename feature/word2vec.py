@@ -4,7 +4,8 @@ from nltk.corpus import stopwords
 import numpy as np
 import re
 from feature.features import Features
-
+from feature.helper import Helper
+ 
 class Word2Vec(Features):
     def __init__(self):
         super().__init__('word2vec')
@@ -13,16 +14,12 @@ class Word2Vec(Features):
     def initialize_variables(self):
         # load model
         self.w2v_model = gensim_word2vec.load('model/word2vec/all_lowercased_stemmed')
-        # initialize stemmer
-        self.stemmer = SnowballStemmer('german')
-        # grab stopword list
-        self.stop = stopwords.words('german')
 
     def _extract_features(self, df):
         if self.first_run:
             self.initialize_variables()
             self.first_run = False
-        data = [self.remove_stop_and_stem(x) for x in [
+        data = [Helper.remove_stop_and_stem(x) for x in [
             df['next_read_title'],
             df['next_read_kicker'],
             df['title'],
@@ -43,15 +40,6 @@ class Word2Vec(Features):
             acticle_text = ''
         return acticle_text
 
-    def to_wordlist(self, data):
-        return data.apply(self.text_to_wordlist)
-
-    def remove_stopwords(self, data):
-        return data.apply(lambda x: [item for item in str(x).split(' ') if item not in self.stop])
-
-    def stem(self, data):
-        return data.apply(lambda x: " ".join([self.stemmer.stem(y) for y in x]))
-
     def word_to_position(self, word):
         try:
             return self.w2v_model.wv[word]
@@ -63,10 +51,4 @@ class Word2Vec(Features):
         result = list(map(self.word_to_position, words))
         result = sum(result) / len(words)
         return result
-
-    def remove_stop_and_stem(self, data):
-        data = self.to_wordlist(data)
-        data = self.remove_stopwords(data)
-        data = self.stem(data)
-        return data
 
