@@ -14,6 +14,7 @@ from feature.subjectivity_features import SubjectivityFeatures
 from scipy.sparse import csr_matrix, issparse
 from feature.word2vec import Word2Vec
 from feature.doc2vec_features import Doc2VecFeatures
+from feature.topic_features import TopicFeatures
 from feature.meta_features import MetaFeatures
 from classifier.svr import SVR
 from classifier.linear_regression import LinearRegression
@@ -24,6 +25,9 @@ import pandas as pd
 from sklearn.preprocessing import normalize, MaxAbsScaler
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import accuracy_score
+
+# napoles
+import feature.napoles as Napoles
 
 
 class Predictor:
@@ -106,7 +110,7 @@ class Predictor:
                 feature_matrix = sparse_hstack(features)
             else:
                 feature_matrix = hstack(features)
-        # print(feature_matrix)
+        print(feature_matrix)
         scaler = MaxAbsScaler()
         scaled_feature_matrix = scaler.fit_transform(feature_matrix)
         scaled_feature_matrix = normalize(scaled_feature_matrix, norm='l2', axis=0)
@@ -114,17 +118,28 @@ class Predictor:
 
     def __init__(self):
         self.features = [
-            ('surface_features', SurfaceFeatures()),
-            ('cumulative_features', CumulativeFeatures()),
-            ('real_world_features', RealWorldFeatures()),
-            ('semantic_features', SemanticFeatures()),
-            ('text_features', TextFeatures()),
-            ('t_density_features', TDensityFeatures()),
-            ('subjectivity_features', SubjectivityFeatures()),
-            ('word2vec', Word2Vec()),
-            ('ngram_features', NGramFeatures()),
-            ('doc2vec_features', Doc2VecFeatures()),
-            ('meta_features', MetaFeatures())
+            # ('surface_features', SurfaceFeatures()),
+            # ('cumulative_features', CumulativeFeatures()),
+            # ('real_world_features', RealWorldFeatures()),
+            # ('semantic_features', SemanticFeatures()),
+            # ('text_features', TextFeatures()),
+            # ('t_density_features', TDensityFeatures()),
+            # ('subjectivity_features', SubjectivityFeatures()),
+            # ('word2vec', Word2Vec()),
+            # ('ngram_features', NGramFeatures()),
+            # ('doc2vec_features', Doc2VecFeatures()),
+            # ('meta_features', MetaFeatures()),
+            # ('topic_features', TopicFeatures()),
+
+            ('bow_features', Napoles.BowFeatures()),
+            ('embeddings_features', Napoles.EmbeddingsFeatures()),
+            ('entity_features', Napoles.EntityFeatures()),
+            ('length_features', Napoles.LengthFeatures()),
+            ('lexicon_features', Napoles.LexiconFeatures()),
+            ('popularity_features', Napoles.PopularityFeatures()),
+            ('pos_features', Napoles.POSFeatures()),
+            ('similarity_features', Napoles.SimilarityFeatures()),
+            ('user_features', Napoles.UserFeatures()),
         ]
 
         self.classifier = [
