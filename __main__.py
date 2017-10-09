@@ -19,10 +19,8 @@ def init_nltk():
             nltk.download(package, os.getcwd() + '/nltk')
 
 def load_data(dataset='tiny'):
-    train_df = pd.read_csv('data/datasets/' + dataset + '/train/articles.csv', sep=',')
-    test_df = pd.read_csv('data/datasets/' + dataset + '/test/articles.csv', sep=',')
-    train_df['has_comments'] = train_df['comment_count'] > 0
-    test_df['has_comments'] = test_df['comment_count'] > 0
+    train_df = pd.read_csv('data/datasets/' + dataset + '/train/comments.csv', sep=',')
+    test_df = pd.read_csv('data/datasets/' + dataset + '/test/comments.csv', sep=',')
     return (train_df, test_df)
 
 def execute_individual(dataset='tiny'):
@@ -30,7 +28,8 @@ def execute_individual(dataset='tiny'):
     print("Load Data...")
     train_df, test_df = load_data(dataset)
     predictor = Predictor()
-    predictor.set_target('comment_count', useRegression=True)
+    # tagets = ['y_persuasive', 'y_audience', 'y_agreement_with_commenter', 'y_informative', 'y_mean', 'y_controversial', 'y_disagreement_with_commenter', 'y_off_topic_with_article', 'y_sentiment_neutral', 'y_sentiment_positive', 'y_sentiment_negative', 'y_sentiment_mixed']
+    predictor.set_target('y_persuasive', useRegression=True)
     features = predictor.features
     for feature in features:
         print("Feature: {}".format(feature[0]))
@@ -46,7 +45,7 @@ def execute(dataset='tiny'):
     train_df, test_df = load_data(dataset)
     predictor = Predictor()
     # predictor.set_target('has_comments', useRegression=False)
-    predictor.set_target('comment_count', useRegression=True)
+    predictor.set_target('y_persuasive', useRegression=True)
     print("Fit...")
     predictor.fit(train_df)
     print("Predict...")
@@ -64,6 +63,7 @@ def main():
     init_nltk()
     datasets = [
         'Tiny',
+        # 'YNACC',
         # 'Tr16Te17-Small',
         # 'Tr16Te17',
         # 'Tr09-16Te17'
