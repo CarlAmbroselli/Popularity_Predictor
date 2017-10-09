@@ -110,7 +110,7 @@ class Predictor:
                 feature_matrix = sparse_hstack(features)
             else:
                 feature_matrix = hstack(features)
-        print(feature_matrix)
+        # print(feature_matrix)
         scaler = MaxAbsScaler()
         scaled_feature_matrix = scaler.fit_transform(feature_matrix)
         scaled_feature_matrix = normalize(scaled_feature_matrix, norm='l2', axis=0)
