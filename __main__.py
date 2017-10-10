@@ -29,7 +29,7 @@ def execute_individual(dataset='tiny'):
     train_df, test_df = load_data(dataset)
     predictor = Predictor()
     # tagets = ['y_persuasive', 'y_audience', 'y_agreement_with_commenter', 'y_informative', 'y_mean', 'y_controversial', 'y_disagreement_with_commenter', 'y_off_topic_with_article', 'y_sentiment_neutral', 'y_sentiment_positive', 'y_sentiment_negative', 'y_sentiment_mixed']
-    predictor.set_target('y_persuasive', useRegression=True)
+    predictor.set_target('y_persuasive', useRegression=False)
     features = predictor.features
     for feature in features:
         print("Feature: {}".format(feature[0]))
@@ -45,7 +45,7 @@ def execute(dataset='tiny'):
     train_df, test_df = load_data(dataset)
     predictor = Predictor()
     # predictor.set_target('has_comments', useRegression=False)
-    predictor.set_target('y_persuasive', useRegression=True)
+    predictor.set_target('y_persuasive', useRegression=False)
     print("Fit...")
     predictor.fit(train_df)
     print("Predict...")
@@ -63,7 +63,7 @@ def main():
     init_nltk()
     datasets = [
         'Tiny',
-        # 'YNACC',
+        'YNACC',
         # 'Tr16Te17-Small',
         # 'Tr16Te17',
         # 'Tr09-16Te17'

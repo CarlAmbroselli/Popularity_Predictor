@@ -14,7 +14,7 @@ class Features:
 
     def extract_features(self, df):
         cached = self.load_cached(df)
-        # self.cleanup(df)
+        self.cleanup(df)
         if cached is not None:
             return cached
         else:

@@ -32,7 +32,7 @@ class EmbeddingsFeatures(Features):
     try:
       return self.w2v_model.wv[word]
     except:
-      return -1
+      return np.array([np.float32(-1.0)] * 300)
 
   def acticle_to_vectors(self, acticle):
     words = acticle.split(' ')
