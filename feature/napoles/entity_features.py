@@ -9,7 +9,7 @@ class EntityFeatures(Features):
 
   def _extract_features(self, df):
     if not self.nlp:
-      self.nlp = spacy.load('de')
+      self.nlp = spacy.load('en')
 
     features = df['text'].apply(lambda x: self.count_entities(str(x)))
     features = np.vstack(features)
