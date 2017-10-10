@@ -42,28 +42,32 @@ def execute_individual(dataset='tiny'):
 def execute(dataset='tiny'):
     print("Using dataset", dataset)
     print("Load Data...")
+    targets = ['y_persuasive', 'y_audience', 'y_agreement_with_commenter', 'y_informative', 'y_mean', 'y_controversial', 'y_disagreement_with_commenter', 'y_off_topic_with_article', 'y_sentiment_neutral', 'y_sentiment_positive', 'y_sentiment_negative', 'y_sentiment_mixed']
     train_df, test_df = load_data(dataset)
-    predictor = Predictor()
-    # predictor.set_target('has_comments', useRegression=False)
-    predictor.set_target('y_persuasive', useRegression=False)
-    print("Fit...")
-    predictor.fit(train_df)
-    print("Predict...")
-    result = predictor.predict(test_df)
-    result['real'] = predictor.ground_truth(test_df)
-    print("Result:")
-    print(result.head(5))
-    print("Metrics:")
-    print(json.dumps(predictor.metrics(), indent=2))
-    # visualizer = Visualize()
-    # visualizer.plot_results(test_df['comment_count'], result)
+    for target in targets:
+        predictor = Predictor()
+        # predictor.set_target('has_comments', useRegression=False)
+        predictor.set_target(target, useRegression=True)
+        print("Fit...")
+        predictor.fit(train_df)
+        print("Predict...")
+        result = predictor.predict(test_df)
+        result['real'] = predictor.ground_truth(test_df)
+        print("Result:")
+        print(result.head(5))
+        print("Metrics for {}:".format(target))
+        print(json.dumps(predictor.metrics(), indent=2))
+        visualizer = Visualize()
+    # visualizer.plot_roc(predictor.ground_truth(test_df), result['svr'])
+    # visualizer.plot_roc(predictor.ground_truth(test_df), result['linear_regression'])
 
 
 def main():
     init_nltk()
     datasets = [
         'Tiny',
-        'YNACC',
+        'YNACC-Evaluation',
+        # 'YNACC',
         # 'Tr16Te17-Small',
         # 'Tr16Te17',
         # 'Tr09-16Te17'

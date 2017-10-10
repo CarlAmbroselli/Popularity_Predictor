@@ -13,16 +13,16 @@ class POSFeatures(Features):
   def _extract_features(self, df):
     if self.first_run:
       self.nlp = spacy.load('en')
-    df['pos'] = df['text'].apply(lambda x: ' '.join([word.pos_ for word in self.nlp(x)]))
+    pos = df['text'].apply(lambda x: ' '.join([word.pos_ for word in self.nlp(x)]))
 
     if self.first_run:
       self.count_vectorizer = CountVectorizer(ngram_range=(1, 3), min_df=2)
       self.tfidf_transformer = TfidfTransformer()
-      counts = self.count_vectorizer.fit_transform(df['pos'])
+      counts = self.count_vectorizer.fit_transform(pos)
       features = self.tfidf_transformer.fit_transform(counts)
       self.first_run = False
     else:
-      counts = self.count_vectorizer.transform(df['pos'])
+      counts = self.count_vectorizer.transform(pos)
       features = self.tfidf_transformer.transform(counts)
     return features
 
