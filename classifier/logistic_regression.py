@@ -4,7 +4,7 @@ import pandas as pd
 
 class LogisticRegression:
     def __init__(self):
-        self.lr = LogisticRegressionClassifier(random_state=0, class_weight='balanced')
+        self.lr = LogisticRegressionClassifier(random_state=0)
         self.model = None
 
     def fit(self, features, ground_truth):

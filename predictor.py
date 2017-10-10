@@ -49,11 +49,32 @@ class Predictor:
         for learner in learners:
             predictions[learner[0]] = learner[1].predict(feature_matrix)
 
-        self.regression_metrics(df, predictions) if self._useRegression else self.classifictaion_metrics(df, predictions)
+        self.regression_metrics(df, predictions) if self._useRegression else self.classification_metrics(df, predictions)
+        # self.thresholded_regression_metrics(df, predictions, 0.8) if self._useRegression else self.classification_metrics(df, predictions)
 
         return predictions
 
-    def classifictaion_metrics(self, df, predictions):
+    def thresholded_regression_metrics(self, df, predictions, threshold, metric='precision'):
+        metrics = {}
+        def normalize(x):
+            return x / np.linalg.norm(x)
+        for classifier in self.regressors:
+            for i in range (1, 100):
+                cutoff = i/100
+                scores = precision_recall_fscore_support(
+                    self.ground_truth(df),
+                    normalize(predictions[classifier[0]]) > cutoff,
+                    average='binary'
+                )
+                metrics[classifier[0]] = dict(zip(['precision', 'recall', 'f-score', 'support'], scores))
+                metrics[classifier[0]]['accuracy'] = accuracy_score(self.ground_truth(df), normalize(predictions[classifier[0]]) > cutoff)
+                if metrics[classifier[0]][metric] > threshold:
+                    break
+        self._metrics = metrics
+        return metrics
+
+
+    def classification_metrics(self, df, predictions):
         metrics = {}
         for classifier in self.classifier:
             scores = precision_recall_fscore_support(
