@@ -46,8 +46,7 @@ def execute(dataset='tiny'):
     train_df, test_df = load_data(dataset)
     for target in targets:
         predictor = Predictor()
-        # predictor.set_target('has_comments', useRegression=False)
-        predictor.set_target(target, useRegression=True)
+        predictor.set_target(target, useRegression=False)
         print("Fit...")
         predictor.fit(train_df)
         print("Predict...")
@@ -58,14 +57,14 @@ def execute(dataset='tiny'):
         print("Metrics for {}:".format(target))
         print(json.dumps(predictor.metrics(), indent=2))
         visualizer = Visualize()
-    # visualizer.plot_roc(predictor.ground_truth(test_df), result['svr'])
-    # visualizer.plot_roc(predictor.ground_truth(test_df), result['linear_regression'])
+        # visualizer.plot_roc(predictor.ground_truth(test_df), result['svr'])
+        # visualizer.plot_roc(predictor.ground_truth(test_df), result['linear_regression'])
 
 
 def main():
     init_nltk()
     datasets = [
-        'Tiny',
+        # 'Tiny',
         'YNACC-Evaluation',
         # 'YNACC',
         # 'Tr16Te17-Small',
