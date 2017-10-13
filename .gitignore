@@ -1,4 +1,9 @@
-data/*
+/data/*
+
+!/data/datasets/YNACC-Evaluation/dev/.gitkeep
+!/data/datasets/YNACC-Evaluation/train/.gitkeep
+!/data/datasets/YNACC-Evaluation/test/.gitkeep
+
 nltk/*
 figures/*.png
 
