@@ -45,7 +45,7 @@ class TopicFeatures(Features):
       articles = Helper.remove_stop_and_stem(doc_list)
       dictionary = corpora.Dictionary(articles.apply(lambda x: x.split(' ')))
       dictionary.save(dict_filepath)
-      corpus = [dictionary.doc2bow(text.split(' ') for text in articles]
+      corpus = [dictionary.doc2bow(text.split(' ')) for text in articles]
       self.dict = dictionary
 
       print('Starting training')
