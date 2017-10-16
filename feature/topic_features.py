@@ -7,7 +7,6 @@ from nltk.corpus import stopwords
 import pandas as pd
 import multiprocessing
 import gensim
-import os
 import re
 from gensim.models import doc2vec
 from nltk.tokenize import RegexpTokenizer
@@ -44,7 +43,7 @@ class TopicFeatures(Features):
       print('Recalculating model')
       doc_list = pd.read_csv('data/datasets/Tr09-16Te17/train/articles.csv', sep=',')['text']
       articles = Helper.remove_stop_and_stem(doc_list)
-      dictionary = corpora.Dictionary(articles)
+      dictionary = corpora.Dictionary(articles.apply(lambda x: x.split(' ')))
       dictionary.save(dict_filepath)
       corpus = [dictionary.doc2bow(text) for text in articles]
       self.dict = dictionary
