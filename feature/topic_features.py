@@ -36,8 +36,8 @@ class TopicFeatures(Features):
     topic_filepath = 'feature/cache/topicmodel'
     dict_filepath = 'feature/cache/topicmodel_dict'
     if os.path.isfile(topic_filepath) and os.path.isfile(dict_filepath):
-      self.dict = corpora.Dictionary().load('model/ldamodel/dictionary.dict')
-      self.lda = models.LdaModel.load('model/ldamodel/lda.model')
+      self.dict = corpora.Dictionary().load(dict_filepath)
+      self.lda = models.LdaModel.load(topic_filepath)
       return (self.dict, self.lda)
     else:
       print('Recalculating model')
@@ -45,13 +45,13 @@ class TopicFeatures(Features):
       articles = Helper.remove_stop_and_stem(doc_list)
       dictionary = corpora.Dictionary(articles.apply(lambda x: x.split(' ')))
       dictionary.save(dict_filepath)
-      corpus = [dictionary.doc2bow(text) for text in articles]
+      corpus = [dictionary.doc2bow(text.split(' ') for text in articles]
       self.dict = dictionary
 
       print('Starting training')
       self.lda = models.ldamodel.LdaModel(corpus, num_topics=200, alpha='auto')
       # save the trained model
-      self.lda.save(dict_filepath)
+      self.lda.save(topic_filepath)
       print('Finished training')
       return(self.dict, self.lda)
 
