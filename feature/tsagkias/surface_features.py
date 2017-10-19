@@ -3,7 +3,7 @@ from feature.features import Features
 
 class SurfaceFeatures(Features):
   def __init__(self):
-    super().__init__('surface_features')
+    super().__init__('tsagkias/surface_features')
 
   def _extract_features(self, df):
     features = []

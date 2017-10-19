@@ -8,7 +8,7 @@ import itertools
 
 class CumulativeFeatures(Features):
   def __init__(self):
-    super().__init__('cumulative_features')
+    super().__init__('tsagkias/cumulative_features')
     self.article_tfidf = None
     self.cached_articles = None
 

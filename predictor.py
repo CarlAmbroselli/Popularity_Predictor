@@ -3,12 +3,12 @@ warnings.filterwarnings(action="ignore", module="scipy", message="^internal gels
 from sklearn.metrics import precision_recall_fscore_support
 from scipy.sparse import hstack as sparse_hstack
 from numpy import hstack
-from feature.text_features import TextFeatures
+from feature.tsagkias.text_features import TextFeatures
 from feature.ngram_features import NGramFeatures
-from feature.surface_features import SurfaceFeatures
-from feature.cumulative_features import CumulativeFeatures
-from feature.real_world_features import RealWorldFeatures
-from feature.semantic_features import SemanticFeatures
+from feature.tsagkias.surface_features import SurfaceFeatures
+from feature.tsagkias.cumulative_features import CumulativeFeatures
+from feature.tsagkias.real_world_features import RealWorldFeatures
+from feature.tsagkias.semantic_features import SemanticFeatures
 from feature.t_density_features import TDensityFeatures
 from feature.subjectivity_features import SubjectivityFeatures
 from scipy.sparse import csr_matrix, issparse
