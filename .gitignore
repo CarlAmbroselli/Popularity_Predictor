@@ -1,4 +1,9 @@
-data/*
+/data/*
+
+!/data/datasets/YNACC-Evaluation/dev/.gitkeep
+!/data/datasets/YNACC-Evaluation/train/.gitkeep
+!/data/datasets/YNACC-Evaluation/test/.gitkeep
+
 nltk/*
 figures/*.png
 
@@ -9,5 +14,7 @@ venv
 
 feature/cache/*.pickle
 feature/cache/doc2vec*
+
+model/word2vec/GoogleNews-vectors-negative300.bin
 feature/cache/topicmodel*
 feature/cache/topicmodel_dict

@@ -43,7 +43,7 @@ class Features:
             hasher.update(buf)
         filehash = hasher.hexdigest()[:8]
 
-        return ('feature/cache/' + hash + '_' + self.file + '_' + filehash + '.pickle', hash, self.file, filehash)
+        return ('feature/cache/' + hash + '_' + self.file.replace('/', '_') + '_' + filehash + '.pickle', hash, self.file, filehash)
 
     def cleanup(self, df):
         filename, df_hash, file, filehash = self.filepath(df)
