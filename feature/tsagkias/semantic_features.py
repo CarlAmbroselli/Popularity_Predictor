@@ -12,7 +12,7 @@ import code
 
 class SemanticFeatures(Features):
   def __init__(self):
-    super().__init__('semantic_features')
+    super().__init__('tsagkias/semantic_features')
     self.nlp = None
     self.ne_vocabulary = None
     self.topwords = None

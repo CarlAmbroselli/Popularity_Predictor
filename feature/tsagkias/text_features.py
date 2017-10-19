@@ -9,14 +9,13 @@ import pandas as pd
 
 class TextFeatures(Features):
   def __init__(self):
-    super().__init__('text_features')
+    super().__init__('tsagkias/text_features')
 
   def _extract_features(self, df):
     top_term_tf = self.load_tf()
 
-    # todo: Better solve this!
     df = df.copy(deep=True)
-    df['ressort'].fillna('mobilitaet', inplace=True)
+    df['ressort'].fillna('unknown', inplace=True)
 
     features = df.apply(lambda x: self.extract_term_frequencies(str(x['text']), top_term_tf[x['ressort']]), axis=1)
 
@@ -68,6 +67,7 @@ class TextFeatures(Features):
       tfidf_transformer = TfidfTransformer()
 
       articles = pd.read_csv('data/datasets/Tr09-16Te17/train/articles.csv', sep=',')[['text', 'ressort']]
+      articles['ressort'].fillna('unknown', inplace=True)
 
       # Extract urlressort
       # ==========================
