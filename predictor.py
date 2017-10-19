@@ -142,14 +142,14 @@ class Predictor:
             ('text_features', Features.tsagkias.TextFeatures()),
 
             # ========== own ===========
-            ('t_density_features', Features.TDensityFeatures()),
-            ('subjectivity_features', Features.SubjectivityFeatures()),
-            ('word2vec', Features.Word2Vec()),
-            ('ngram_features', Features.NGramFeatures()),
-            ('doc2vec_features', Features.Doc2VecFeatures()),
-            ('meta_features', Features.MetaFeatures()),
-            ('topic_features', Features.TopicFeatures()),
-            ('semantic_features', Features.SemanticFeatures()),
+            # ('t_density_features', Features.TDensityFeatures()),
+            # ('subjectivity_features', Features.SubjectivityFeatures()),
+            # ('word2vec', Features.Word2Vec()),
+            # ('ngram_features', Features.NGramFeatures()),
+            # ('doc2vec_features', Features.Doc2VecFeatures()),
+            # ('meta_features', Features.MetaFeatures()),
+            # ('topic_features', Features.TopicFeatures()),
+            # ('semantic_features', Features.SemanticFeatures()),
         ]
 
         self.classifier = [

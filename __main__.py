@@ -39,6 +39,18 @@ def execute(dataset='tiny', individual=False):
     for target in targets:
         predictor = Predictor()
         predictor.set_target(target[0], useRegression=target[1])
+        print("Fit all features...")
+        predictor.fit(train_df)
+        print("Predict...")
+        result = predictor.predict(test_df)
+        result['real'] = predictor.ground_truth(test_df)
+        print("Result:")
+        print(result.head(5))
+        print("Metrics for {}:".format(target))
+        print(json.dumps(predictor.metrics(), indent=2))
+        # visualizer = Visualize()
+        # visualizer.plot_roc(predictor.ground_truth(test_df), result['svr'])
+        # visualizer.plot_roc(predictor.ground_truth(test_df), result['linear_regression'])
         if individual:
             features = predictor.features
             for feature in features:
@@ -48,33 +60,19 @@ def execute(dataset='tiny', individual=False):
                 result = predictor.predict(test_df)
                 result['real'] = predictor.ground_truth(test_df)
                 print(json.dumps(predictor.metrics(), indent=2))
-        else:
-            print("Fit...")
-            predictor.fit(train_df)
-            print("Predict...")
-            result = predictor.predict(test_df)
-            result['real'] = predictor.ground_truth(test_df)
-            print("Result:")
-            print(result.head(5))
-            print("Metrics for {}:".format(target))
-            print(json.dumps(predictor.metrics(), indent=2))
-            visualizer = Visualize()
-            # visualizer.plot_roc(predictor.ground_truth(test_df), result['svr'])
-            # visualizer.plot_roc(predictor.ground_truth(test_df), result['linear_regression'])
-
 
 def main():
     init_nltk()
     datasets = [
-        'Tiny',
+        # 'Tiny',
         # 'YNACC-Evaluation',
         # 'YNACC',
         # 'Tr16Te17-Small',
         # 'Tr16Te17',
-        # 'Tr09-16Te17'
+        'Tr09-16Te17'
     ]
     for dataset in datasets:
-        execute(dataset, individual=False)
+        execute(dataset, individual=True)
 
 
 if __name__ == '__main__':
