@@ -3,7 +3,7 @@
 ### Start the framework
 1. Clone the repository: `git clone https://github.com/CarlAmbroselli/Popularity_Predictor`
 2. Open repository: `cd Popularity_Predictor`
-3. Checkout paper/napoles branch: `git checkout paper/napoles`
+3. (optional) Checkout paper/napoles branch: `git checkout paper/napoles`
 4. Install requirements: `pip install -r requirements.txt #might be done in a virtualenv`
 5. Add `comments.csv` to the `data/datasets/YNACC-Evaluation/train/` and `data/datasets/YNACC-Evaluation/test` folder with the following format: 
 ```
@@ -16,4 +16,3 @@ index,comment_count,threads_participated_in,threads_initiated,tu_received,td_rec
 7. Save [word2vec model](https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/edit) to `model/word2vec/GoogleNews-vectors-negative300.bin`
 8. Download en spacy model: `python -m spacy download en`
 9. Run using `python .`
-

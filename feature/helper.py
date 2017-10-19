@@ -4,6 +4,11 @@ import numpy as np
 import re
 
 class Helper():
+    # initialize stemmer
+    stemmer = SnowballStemmer('german')
+    # grab stopword list
+    stop = stopwords.words('german')
+
     @staticmethod
     def text_to_wordlist(acticle):
         try:
@@ -17,20 +22,19 @@ class Helper():
 
     @staticmethod
     def to_wordlist(data):
-        return data.apply(text_to_wordlist)
+        return data.apply(Helper.text_to_wordlist)
 
     @staticmethod
     def remove_stopwords(data):
-        stop = stopwords.words('german')
-        return data.apply(lambda x: [item for item in str(x).split(' ') if item not in stop])
+        return data.apply(lambda x: [item for item in str(x).split(' ') if item not in Helper.stop])
 
     @staticmethod
     def stem(data):
-        return data.apply(lambda x: " ".join([stemmer.stem(y) for y in x]))
+        return data.apply(lambda x: " ".join([Helper.stemmer.stem(y) for y in x]))
 
     @staticmethod
     def remove_stop_and_stem(data):
-        data = to_wordlist(data)
-        data = remove_stopwords(data)
-        data = stem(data)
+        data = Helper.to_wordlist(data)
+        data = Helper.remove_stopwords(data)
+        data = Helper.stem(data)
         return data

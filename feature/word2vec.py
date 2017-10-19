@@ -14,10 +14,6 @@ class Word2Vec(Features):
     def initialize_variables(self):
         # load model
         self.w2v_model = gensim_word2vec.load('model/word2vec/all_lowercased_stemmed')
-        # initialize stemmer
-        self.stemmer = SnowballStemmer('german')
-        # grab stopword list
-        self.stop = stopwords.words('german')
 
     def _extract_features(self, df):
         if self.first_run:
@@ -31,7 +27,8 @@ class Word2Vec(Features):
             df['teaser_text'],
             df['teaser_title']
         ]]
-        vectors = [np.asarray(list(map(self.acticle_to_vectors, d))) for d in data]
+
+        vectors = [np.vstack(d.apply(self.acticle_to_vectors)) for d in data]
         return np.hstack(vectors)
 
     def text_to_wordlist(self, acticle):
@@ -48,7 +45,7 @@ class Word2Vec(Features):
         try:
             return self.w2v_model.wv[word]
         except:
-            return -1
+            return np.array([-1] * 100)
 
     def acticle_to_vectors(self, acticle):
         words = acticle.split(' ')
