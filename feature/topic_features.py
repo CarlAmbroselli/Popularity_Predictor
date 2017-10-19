@@ -24,11 +24,11 @@ class TopicFeatures(Features):
 
   def _extract_features(self, df):
     dict, lda = self.topic_model()
-    data = df['text'].apply(lambda x: Helper.remove_stop_and_stem(x))
-    bow_data = data.apply(lambda x: dict.doc2bow(x))
+    data = Helper.remove_stop_and_stem(df['text'])
+    bow_data = data.apply(lambda x: dict.doc2bow(x.split(' ')))
     features = bow_data.apply(lambda x: lda.get_document_topics(x, minimum_probability=0))
 
-    return features
+    return np.array([[topic[1] for topic in f] for f in features]) # extract only the probabilities
 
   def topic_model(self):
     if self.dict is not None and self.lda is not None:
