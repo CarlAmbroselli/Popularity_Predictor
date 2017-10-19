@@ -124,25 +124,29 @@ class Predictor:
     def __init__(self):
         self.features = [
             # ======== napoles ========
-            # ('bow_features', Features.napoles.BowFeatures()),
-            # ('embeddings_features', Features.napoles.EmbeddingsFeatures()),
-            # ('entity_features', Features.napoles.EntityFeatures()),
-            # ('length_features', Features.napoles.LengthFeatures()),
-            # ('lexicon_features', Features.napoles.LexiconFeatures()),
-            # ('popularity_features', Features.napoles.PopularityFeatures()),
-            # ('pos_features', Features.napoles.POSFeatures()),
-            # ('similarity_features', Features.napoles.SimilarityFeatures()),
-            # ('user_features', Features.napoles.UserFeatures()),
+            # ('napoles/bow_features', Features.napoles.BowFeatures()),
+            # ('napoles/embeddings_features', Features.napoles.EmbeddingsFeatures()),
+            # ('napoles/entity_features', Features.napoles.EntityFeatures()),
+            # ('napoles/length_features', Features.napoles.LengthFeatures()),
+            # ('napoles/lexicon_features', Features.napoles.LexiconFeatures()),
+            # ('napoles/popularity_features', Features.napoles.PopularityFeatures()),
+            # ('napoles/pos_features', Features.napoles.POSFeatures()),
+            # ('napoles/similarity_features', Features.napoles.SimilarityFeatures()),
+            # ('napoles/user_features', Features.napoles.UserFeatures()),
 
             # ======== tsagkias ========
-            ('surface_features', Features.tsagkias.SurfaceFeatures()),
-            ('cumulative_features', Features.tsagkias.CumulativeFeatures()),
-            ('real_world_features', Features.tsagkias.RealWorldFeatures()),
-            ('semantic_features', Features.tsagkias.SemanticFeatures()),
-            ('text_features', Features.tsagkias.TextFeatures()),
+            # ('tsagkias/surface_features', Features.tsagkias.SurfaceFeatures()),
+            # ('tsagkias/cumulative_features', Features.tsagkias.CumulativeFeatures()),
+            # ('tsagkias/real_world_features', Features.tsagkias.RealWorldFeatures()),
+            # ('tsagkias/semantic_features', Features.tsagkias.SemanticFeatures()),
+            # ('tsagkias/text_features', Features.tsagkias.TextFeatures()),
+
+            # ======== bandari ========
+            ('bandari/semantic_features', Features.bandari.SemanticFeatures()),
+            ('bandari/subjectivity_features', Features.bandari.SubjectivityFeatures()),
+            ('bandari/t_density_features', Features.bandari.TDensityFeatures()),
 
             # ========== own ===========
-            # ('t_density_features', Features.TDensityFeatures()),
             # ('subjectivity_features', Features.SubjectivityFeatures()),
             # ('word2vec', Features.Word2Vec()),
             # ('ngram_features', Features.NGramFeatures()),
