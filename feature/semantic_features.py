@@ -12,7 +12,7 @@ import code
 
 class SemanticFeatures(Features):
   def __init__(self):
-    super().__init__('tsagkias/semantic_features')
+    super().__init__('semantic_features')
     self.nlp = None
     self.ne_vocabulary = None
     self.topwords = None
@@ -23,10 +23,11 @@ class SemanticFeatures(Features):
 
     features = df['text'].apply(lambda x: self.count_entities(str(x)))
     features = np.vstack(features)
-    used_by_paper = [features[:,0], features[:,5], features[:,3], np.sum(features, axis=1)-(np.sum((features[:,0],features[:,5],features[:,3]), axis=0))]
-    used_by_paper = np.vstack(used_by_paper).T
+    tfidf_features = self.named_entities_tfidf(df['text'])
 
-    return np.hstack((used_by_paper, features[:,17:]))
+    resulting_features = [tfidf_features, features, np.vstack(np.sum(features, axis=1)), np.vstack(np.max(features, axis=1)), np.vstack(np.average(features, axis=1))]
+
+    return sparse_hstack(resulting_features)
 
 
   def named_entities_tfidf(self, articles):

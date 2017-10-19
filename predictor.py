@@ -1,34 +1,18 @@
 import warnings
 warnings.filterwarnings(action="ignore", module="scipy", message="^internal gelsd")
+import numpy as np
+import pandas as pd
 from sklearn.metrics import precision_recall_fscore_support
-from scipy.sparse import hstack as sparse_hstack
+from scipy.sparse import hstack as sparse_hstack, csr_matrix, issparse
 from numpy import hstack
-from feature.tsagkias.text_features import TextFeatures
-from feature.ngram_features import NGramFeatures
-from feature.tsagkias.surface_features import SurfaceFeatures
-from feature.tsagkias.cumulative_features import CumulativeFeatures
-from feature.tsagkias.real_world_features import RealWorldFeatures
-from feature.tsagkias.semantic_features import SemanticFeatures
-from feature.t_density_features import TDensityFeatures
-from feature.subjectivity_features import SubjectivityFeatures
-from scipy.sparse import csr_matrix, issparse
-from feature.word2vec import Word2Vec
-from feature.doc2vec_features import Doc2VecFeatures
-from feature.topic_features import TopicFeatures
-from feature.meta_features import MetaFeatures
+from sklearn.preprocessing import normalize, MaxAbsScaler
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import accuracy_score
 from classifier.svr import SVR
 from classifier.linear_regression import LinearRegression
 # from classifier.naive_bayes import NaiveBayes
 from classifier.logistic_regression import LogisticRegression
-import numpy as np
-import pandas as pd
-from sklearn.preprocessing import normalize, MaxAbsScaler
-from sklearn.metrics import mean_squared_error
-from sklearn.metrics import accuracy_score
-
-# napoles
-import feature.napoles as Napoles
-
+import feature as Features
 
 class Predictor:
     def fit(self, df):
@@ -139,28 +123,33 @@ class Predictor:
 
     def __init__(self):
         self.features = [
-            # ('bow_features', Napoles.BowFeatures()),
-            # ('embeddings_features', Napoles.EmbeddingsFeatures()),
-            # ('entity_features', Napoles.EntityFeatures()),
-            # ('length_features', Napoles.LengthFeatures()),
-            # ('lexicon_features', Napoles.LexiconFeatures()),
-            # ('popularity_features', Napoles.PopularityFeatures()),
-            # ('pos_features', Napoles.POSFeatures()),
-            # ('similarity_features', Napoles.SimilarityFeatures()),
-            # ('user_features', Napoles.UserFeatures()),
-          
-            ('surface_features', SurfaceFeatures()),
-            ('cumulative_features', CumulativeFeatures()),
-            ('real_world_features', RealWorldFeatures()),
-            ('semantic_features', SemanticFeatures()),
-            ('text_features', TextFeatures()),
-            ('t_density_features', TDensityFeatures()),
-            ('subjectivity_features', SubjectivityFeatures()),
-            ('word2vec', Word2Vec()),
-            ('ngram_features', NGramFeatures()),
-            ('doc2vec_features', Doc2VecFeatures()),
-            ('meta_features', MetaFeatures()),
-            ('topic_features', TopicFeatures())
+            # ======== napoles ========
+            # ('bow_features', Features.napoles.BowFeatures()),
+            # ('embeddings_features', Features.napoles.EmbeddingsFeatures()),
+            # ('entity_features', Features.napoles.EntityFeatures()),
+            # ('length_features', Features.napoles.LengthFeatures()),
+            # ('lexicon_features', Features.napoles.LexiconFeatures()),
+            # ('popularity_features', Features.napoles.PopularityFeatures()),
+            # ('pos_features', Features.napoles.POSFeatures()),
+            # ('similarity_features', Features.napoles.SimilarityFeatures()),
+            # ('user_features', Features.napoles.UserFeatures()),
+
+            # ======== tsagkias ========
+            ('surface_features', Features.tsagkias.SurfaceFeatures()),
+            ('cumulative_features', Features.tsagkias.CumulativeFeatures()),
+            ('real_world_features', Features.tsagkias.RealWorldFeatures()),
+            ('semantic_features', Features.tsagkias.SemanticFeatures()),
+            ('text_features', Features.tsagkias.TextFeatures()),
+
+            # ========== own ===========
+            ('t_density_features', Features.TDensityFeatures()),
+            ('subjectivity_features', Features.SubjectivityFeatures()),
+            ('word2vec', Features.Word2Vec()),
+            ('ngram_features', Features.NGramFeatures()),
+            ('doc2vec_features', Features.Doc2VecFeatures()),
+            ('meta_features', Features.MetaFeatures()),
+            ('topic_features', Features.TopicFeatures()),
+            ('semantic_features', Features.SemanticFeatures()),
         ]
 
         self.classifier = [
@@ -169,5 +158,5 @@ class Predictor:
 
         self.regressors = [
             ('svr', SVR()),
-            ('linear_regression', LinearRegression())
+            ('linear_regression', LinearRegression()),
         ]

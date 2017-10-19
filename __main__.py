@@ -74,7 +74,7 @@ def main():
         # 'Tr09-16Te17'
     ]
     for dataset in datasets:
-        execute(dataset, individual=True)
+        execute(dataset, individual=False)
 
 
 if __name__ == '__main__':
