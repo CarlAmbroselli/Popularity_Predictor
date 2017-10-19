@@ -30,13 +30,13 @@ def execute(dataset='tiny', individual=False):
     print("Load Data...")
 
     # napoles
-    # targets = [('y_persuasive', 'regression'), ('y_audience', 'regression'), ('y_agreement_with_commenter', 'regression'), ('y_informative', 'regression'), ('y_mean', 'regression'), ('y_controversial', 'regression'), ('y_disagreement_with_commenter', 'regression'), ('y_off_topic_with_article', 'regression'), ('y_sentiment_neutral', 'regression'), ('y_sentiment_positive', 'regression'), ('y_sentiment_negative', 'regression'), ('y_sentiment_mixed', 'regression')]
+    # targets = [('y_persuasive', 'classification'), ('y_audience', 'classification'), ('y_agreement_with_commenter', 'classification'), ('y_informative', 'classification'), ('y_mean', 'classification'), ('y_controversial', 'classification'), ('y_disagreement_with_commenter', 'classification'), ('y_off_topic_with_article', 'classification'), ('y_sentiment_neutral', 'classification'), ('y_sentiment_positive', 'classification'), ('y_sentiment_negative', 'classification'), ('y_sentiment_mixed', 'classification')]
 
     # tsagkias
-    # targets = [('has_comments', 'regression')]
+    # targets = [('has_comments', 'classification')]
 
     # bandari
-    targets = [('facebook_shares', 'classification')]
+    targets = [('facebook_shares', 'regression')]
 
     train_df, test_df = load_data(dataset)
     for target in targets:
