@@ -19,61 +19,62 @@ def init_nltk():
             nltk.download(package, os.getcwd() + '/nltk')
 
 def load_data(dataset='tiny'):
-    train_df = pd.read_csv('data/datasets/' + dataset + '/train/comments.csv', sep=',')
-    test_df = pd.read_csv('data/datasets/' + dataset + '/test/comments.csv', sep=',')
+    train_df = pd.read_csv('data/datasets/' + dataset + '/train/articles.csv', sep=',')
+    test_df = pd.read_csv('data/datasets/' + dataset + '/test/articles.csv', sep=',')
+    train_df['has_comments'] = train_df['comment_count'] > 0
+    test_df['has_comments'] = test_df['comment_count'] > 0
     return (train_df, test_df)
 
-def execute_individual(dataset='tiny'):
+def execute(dataset='tiny', individual=False):
     print("Using dataset", dataset)
     print("Load Data...")
-    train_df, test_df = load_data(dataset)
-    predictor = Predictor()
-    # tagets = ['y_persuasive', 'y_audience', 'y_agreement_with_commenter', 'y_informative', 'y_mean', 'y_controversial', 'y_disagreement_with_commenter', 'y_off_topic_with_article', 'y_sentiment_neutral', 'y_sentiment_positive', 'y_sentiment_negative', 'y_sentiment_mixed']
-    predictor.set_target('y_persuasive', useRegression=False)
-    features = predictor.features
-    for feature in features:
-        print("Feature: {}".format(feature[0]))
-        predictor.features = [feature]
-        predictor.fit(train_df)
-        result = predictor.predict(test_df)
-        result['real'] = predictor.ground_truth(test_df)
-        print(json.dumps(predictor.metrics(), indent=2))
 
-def execute(dataset='tiny'):
-    print("Using dataset", dataset)
-    print("Load Data...")
-    targets = ['y_persuasive', 'y_audience', 'y_agreement_with_commenter', 'y_informative', 'y_mean', 'y_controversial', 'y_disagreement_with_commenter', 'y_off_topic_with_article', 'y_sentiment_neutral', 'y_sentiment_positive', 'y_sentiment_negative', 'y_sentiment_mixed']
+    # napoles
+    # targets = [('y_persuasive', False), ('y_audience', False), ('y_agreement_with_commenter', False), ('y_informative', False), ('y_mean', False), ('y_controversial', False), ('y_disagreement_with_commenter', False), ('y_off_topic_with_article', False), ('y_sentiment_neutral', False), ('y_sentiment_positive', False), ('y_sentiment_negative', False), ('y_sentiment_mixed', False)]
+
+    # tsagkias
+    targets = [('has_comments', False)]
+
     train_df, test_df = load_data(dataset)
     for target in targets:
         predictor = Predictor()
-        predictor.set_target(target, useRegression=False)
-        print("Fit...")
-        predictor.fit(train_df)
-        print("Predict...")
-        result = predictor.predict(test_df)
-        result['real'] = predictor.ground_truth(test_df)
-        print("Result:")
-        print(result.head(5))
-        print("Metrics for {}:".format(target))
-        print(json.dumps(predictor.metrics(), indent=2))
-        visualizer = Visualize()
-        # visualizer.plot_roc(predictor.ground_truth(test_df), result['svr'])
-        # visualizer.plot_roc(predictor.ground_truth(test_df), result['linear_regression'])
+        predictor.set_target(target[0], useRegression=target[1])
+        if individual:
+            features = predictor.features
+            for feature in features:
+                print("Feature: {}".format(feature[0]))
+                predictor.features = [feature]
+                predictor.fit(train_df)
+                result = predictor.predict(test_df)
+                result['real'] = predictor.ground_truth(test_df)
+                print(json.dumps(predictor.metrics(), indent=2))
+        else:
+            print("Fit...")
+            predictor.fit(train_df)
+            print("Predict...")
+            result = predictor.predict(test_df)
+            result['real'] = predictor.ground_truth(test_df)
+            print("Result:")
+            print(result.head(5))
+            print("Metrics for {}:".format(target))
+            print(json.dumps(predictor.metrics(), indent=2))
+            visualizer = Visualize()
+            # visualizer.plot_roc(predictor.ground_truth(test_df), result['svr'])
+            # visualizer.plot_roc(predictor.ground_truth(test_df), result['linear_regression'])
 
 
 def main():
     init_nltk()
     datasets = [
-        # 'Tiny',
-        'YNACC-Evaluation',
+        'Tiny',
+        # 'YNACC-Evaluation',
         # 'YNACC',
         # 'Tr16Te17-Small',
         # 'Tr16Te17',
         # 'Tr09-16Te17'
     ]
     for dataset in datasets:
-        execute(dataset)
-        # execute_individual(dataset)
+        execute(dataset, individual=True)
 
 
 if __name__ == '__main__':
