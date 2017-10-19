@@ -5,7 +5,7 @@ from textblob_de import TextBlobDE
 
 class SubjectivityFeatures(Features):
   def __init__(self):
-    super().__init__('subjectivity_features')
+    super().__init__('bandari/subjectivity_features')
 
   def _extract_features(self, df):
     features = df['text'].apply(lambda x: [self.extract_subjectivity(str(x))])
