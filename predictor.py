@@ -26,6 +26,9 @@ from sklearn.preprocessing import normalize, MaxAbsScaler
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import accuracy_score
 
+# napoles
+import feature.napoles as Napoles
+
 
 class Predictor:
     def fit(self, df):
@@ -46,11 +49,32 @@ class Predictor:
         for learner in learners:
             predictions[learner[0]] = learner[1].predict(feature_matrix)
 
-        self.regression_metrics(df, predictions) if self._useRegression else self.classifictaion_metrics(df, predictions)
+        self.regression_metrics(df, predictions) if self._useRegression else self.classification_metrics(df, predictions)
+        # self.thresholded_regression_metrics(df, predictions, 0.8) if self._useRegression else self.classification_metrics(df, predictions)
 
         return predictions
 
-    def classifictaion_metrics(self, df, predictions):
+    def thresholded_regression_metrics(self, df, predictions, threshold, metric='precision'):
+        metrics = {}
+        def normalize(x):
+            return x / np.linalg.norm(x)
+        for classifier in self.regressors:
+            for i in range (1, 100):
+                cutoff = i/100
+                scores = precision_recall_fscore_support(
+                    self.ground_truth(df),
+                    normalize(predictions[classifier[0]]) > cutoff,
+                    average='binary'
+                )
+                metrics[classifier[0]] = dict(zip(['precision', 'recall', 'f-score', 'support'], scores))
+                metrics[classifier[0]]['accuracy'] = accuracy_score(self.ground_truth(df), normalize(predictions[classifier[0]]) > cutoff)
+                if metrics[classifier[0]][metric] > threshold:
+                    break
+        self._metrics = metrics
+        return metrics
+
+
+    def classification_metrics(self, df, predictions):
         metrics = {}
         for classifier in self.classifier:
             scores = precision_recall_fscore_support(
@@ -100,6 +124,7 @@ class Predictor:
         for feature in features:
             if issparse(feature):
                 has_sparse = True
+        # [print(f.shape) for f in features]
         if len(features) == 1:
             feature_matrix = features[0]
         else:
@@ -107,7 +132,6 @@ class Predictor:
                 feature_matrix = sparse_hstack(features)
             else:
                 feature_matrix = hstack(features)
-        # print(feature_matrix)
         scaler = MaxAbsScaler()
         scaled_feature_matrix = scaler.fit_transform(feature_matrix)
         scaled_feature_matrix = normalize(scaled_feature_matrix, norm='l2', axis=0)
@@ -115,6 +139,16 @@ class Predictor:
 
     def __init__(self):
         self.features = [
+            # ('bow_features', Napoles.BowFeatures()),
+            # ('embeddings_features', Napoles.EmbeddingsFeatures()),
+            # ('entity_features', Napoles.EntityFeatures()),
+            # ('length_features', Napoles.LengthFeatures()),
+            # ('lexicon_features', Napoles.LexiconFeatures()),
+            # ('popularity_features', Napoles.PopularityFeatures()),
+            # ('pos_features', Napoles.POSFeatures()),
+            # ('similarity_features', Napoles.SimilarityFeatures()),
+            # ('user_features', Napoles.UserFeatures()),
+          
             ('surface_features', SurfaceFeatures()),
             ('cumulative_features', CumulativeFeatures()),
             ('real_world_features', RealWorldFeatures()),

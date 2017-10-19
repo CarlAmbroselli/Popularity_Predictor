@@ -5,7 +5,6 @@ import numpy as np
 import re
 from feature.features import Features
 from feature.helper import Helper
-import code
  
 class Word2Vec(Features):
     def __init__(self):

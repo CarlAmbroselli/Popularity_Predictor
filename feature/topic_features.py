@@ -54,4 +54,3 @@ class TopicFeatures(Features):
       self.lda.save(topic_filepath)
       print('Finished training')
       return(self.dict, self.lda)
-

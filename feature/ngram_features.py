@@ -10,7 +10,6 @@ class NGramFeatures(Features):
     self.first_run = True
 
   def _extract_features(self, df):
-    features = None
     if self.first_run:
       self.count_vectorizer = CountVectorizer(ngram_range=(1, 3), min_df=2, stop_words=stopwords.words('german'))
       self.tfidf_transformer = TfidfTransformer()
@@ -20,5 +19,7 @@ class NGramFeatures(Features):
     else:
       counts = self.count_vectorizer.transform(df["text"])
       features = self.tfidf_transformer.transform(counts)
-
     return features
+
+  def reset(self):
+    self.first_run = True
