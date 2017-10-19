@@ -139,28 +139,28 @@ class Predictor:
 
     def __init__(self):
         self.features = [
-            # ('surface_features', SurfaceFeatures()),
-            # ('cumulative_features', CumulativeFeatures()),
-            # ('real_world_features', RealWorldFeatures()),
-            # ('semantic_features', SemanticFeatures()),
-            # ('text_features', TextFeatures()),
-            # ('t_density_features', TDensityFeatures()),
-            # ('subjectivity_features', SubjectivityFeatures()),
-            # ('word2vec', Word2Vec()),
-            # ('ngram_features', NGramFeatures()),
-            # ('doc2vec_features', Doc2VecFeatures()),
-            # ('meta_features', MetaFeatures()),
-            # ('topic_features', TopicFeatures()),
-
-            ('bow_features', Napoles.BowFeatures()),
-            ('embeddings_features', Napoles.EmbeddingsFeatures()),
-            ('entity_features', Napoles.EntityFeatures()),
-            ('length_features', Napoles.LengthFeatures()),
-            ('lexicon_features', Napoles.LexiconFeatures()),
-            ('popularity_features', Napoles.PopularityFeatures()),
-            ('pos_features', Napoles.POSFeatures()),
-            ('similarity_features', Napoles.SimilarityFeatures()),
-            ('user_features', Napoles.UserFeatures()),
+            # ('bow_features', Napoles.BowFeatures()),
+            # ('embeddings_features', Napoles.EmbeddingsFeatures()),
+            # ('entity_features', Napoles.EntityFeatures()),
+            # ('length_features', Napoles.LengthFeatures()),
+            # ('lexicon_features', Napoles.LexiconFeatures()),
+            # ('popularity_features', Napoles.PopularityFeatures()),
+            # ('pos_features', Napoles.POSFeatures()),
+            # ('similarity_features', Napoles.SimilarityFeatures()),
+            # ('user_features', Napoles.UserFeatures()),
+          
+            ('surface_features', SurfaceFeatures()),
+            ('cumulative_features', CumulativeFeatures()),
+            ('real_world_features', RealWorldFeatures()),
+            ('semantic_features', SemanticFeatures()),
+            ('text_features', TextFeatures()),
+            ('t_density_features', TDensityFeatures()),
+            ('subjectivity_features', SubjectivityFeatures()),
+            ('word2vec', Word2Vec()),
+            ('ngram_features', NGramFeatures()),
+            ('doc2vec_features', Doc2VecFeatures()),
+            ('meta_features', MetaFeatures()),
+            ('topic_features', TopicFeatures())
         ]
 
         self.classifier = [
