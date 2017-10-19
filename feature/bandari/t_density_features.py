@@ -4,7 +4,7 @@ from feature.features import Features
 
 class TDensityFeatures(Features):
   def __init__(self):
-    super().__init__('t_density_features')
+    super().__init__('bandari/t_density_features')
     self.t_density = None
 
   def _extract_features(self, df):
@@ -12,7 +12,7 @@ class TDensityFeatures(Features):
     features = df['ressort'].apply(lambda x: \
         [(t_density_score[str(x)] if str(x) in t_density_score else t_density_score['avg']), t_density_score['avg']])
 
-    return  np.vstack(np.array(features).T)
+    return np.vstack(np.array(features).T)
 
   def t_density_score(self, df):
       if self.t_density is not None:

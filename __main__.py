@@ -30,15 +30,18 @@ def execute(dataset='tiny', individual=False):
     print("Load Data...")
 
     # napoles
-    # targets = [('y_persuasive', False), ('y_audience', False), ('y_agreement_with_commenter', False), ('y_informative', False), ('y_mean', False), ('y_controversial', False), ('y_disagreement_with_commenter', False), ('y_off_topic_with_article', False), ('y_sentiment_neutral', False), ('y_sentiment_positive', False), ('y_sentiment_negative', False), ('y_sentiment_mixed', False)]
+    # targets = [('y_persuasive', 'regression'), ('y_audience', 'regression'), ('y_agreement_with_commenter', 'regression'), ('y_informative', 'regression'), ('y_mean', 'regression'), ('y_controversial', 'regression'), ('y_disagreement_with_commenter', 'regression'), ('y_off_topic_with_article', 'regression'), ('y_sentiment_neutral', 'regression'), ('y_sentiment_positive', 'regression'), ('y_sentiment_negative', 'regression'), ('y_sentiment_mixed', 'regression')]
 
     # tsagkias
-    targets = [('has_comments', False)]
+    # targets = [('has_comments', 'regression')]
+
+    # bandari
+    targets = [('facebook_shares', 'classification')]
 
     train_df, test_df = load_data(dataset)
     for target in targets:
         predictor = Predictor()
-        predictor.set_target(target[0], useRegression=target[1])
+        predictor.set_target(target[0], useRegression=(target[1] == 'regression'))
         print("Fit all features...")
         predictor.fit(train_df)
         print("Predict...")
