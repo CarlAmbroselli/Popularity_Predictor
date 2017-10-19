@@ -9,3 +9,5 @@ venv
 
 feature/cache/*.pickle
 feature/cache/doc2vec*
+feature/cache/topicmodel*
+feature/cache/topicmodel_dict
