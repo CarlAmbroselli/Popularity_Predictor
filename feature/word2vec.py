@@ -5,6 +5,7 @@ import numpy as np
 import re
 from feature.features import Features
 from feature.helper import Helper
+import code
  
 class Word2Vec(Features):
     def __init__(self):
@@ -27,7 +28,8 @@ class Word2Vec(Features):
             df['teaser_text'],
             df['teaser_title']
         ]]
-        vectors = [np.asarray(list(map(self.acticle_to_vectors, d))) for d in data]
+
+        vectors = [np.vstack(d.apply(self.acticle_to_vectors)) for d in data]
         return np.hstack(vectors)
 
     def text_to_wordlist(self, acticle):
@@ -44,7 +46,7 @@ class Word2Vec(Features):
         try:
             return self.w2v_model.wv[word]
         except:
-            return -1
+            return np.array([-1] * 100)
 
     def acticle_to_vectors(self, acticle):
         words = acticle.split(' ')
