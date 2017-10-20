@@ -19,6 +19,9 @@ class ExtendedSurfaceFeatures(Features):
     year = df['year']
     features.append(year)
 
+    year_month = (df['year'] - 2009) * 12 + df['month']
+    features.append(year_month)
+
     publish_datestring = df['publish_datestring']
     features.append(publish_datestring)
 
