@@ -10,6 +10,7 @@ from sklearn.metrics import mean_squared_error
 from sklearn.metrics import accuracy_score
 from classifier.svr import SVR
 from classifier.linear_regression import LinearRegression
+from classifier.ridge_regression import RidgeRegression
 # from classifier.naive_bayes import NaiveBayes
 from classifier.logistic_regression import LogisticRegression
 import feature as Features
@@ -19,6 +20,10 @@ class Predictor:
         '''
         Generate the features from the dataframe and fit the classifiers.
         '''
+        ground_truth = self.ground_truth(df)
+        self._training_mean = np.mean(ground_truth)
+
+
         feature_matrix = self.calculate_feature_matrix(df)
         print("...using", feature_matrix.shape[1], "features from", ", ".join([feature[0] for feature in self.features]))
         learners = self.regressors if self._useRegression else self.classifier
@@ -68,6 +73,7 @@ class Predictor:
             )
             metrics[classifier[0]] = dict(zip(['precision', 'recall', 'f-score', 'support'], scores))
             metrics[classifier[0]]['accuracy'] = accuracy_score(self.ground_truth(df), predictions[classifier[0]])
+            metrics['class-ratio'] = np.sum(predictions[classifier[0]])/len(predictions[classifier[0]])
 
         self._metrics = metrics
         return metrics
@@ -78,6 +84,7 @@ class Predictor:
         size = ground_truth.size
         metrics = {
             'dataset': {
+                'train_mean': float("%.2f" % self.training_mean()),
                 'mean': float("%.2f" % mean),
                 'size': size,
                 'rmse (avg)': float("%.2f" % mean_squared_error(ground_truth, np.ones((size, 1)) * mean) ** 0.5)
@@ -85,7 +92,7 @@ class Predictor:
         }
         for learner in self.regressors:
             metrics[learner[0]] = {
-                # 'coef': learner[1].model.coef_ if learner[0] == 'linear_regression' else None,
+                'coef': np.arange(learner[1].model.coef_), #  if learner[0] == 'linear_regression' else None,
                 'rmse': float("%.2f" % mean_squared_error(ground_truth, predictions[learner[0]]) ** 0.5)
             }
 
@@ -94,6 +101,9 @@ class Predictor:
 
     def metrics(self):
         return self._metrics
+
+    def training_mean(self):
+        return self._training_mean
 
     def set_target(self, column, useRegression):
         self._ground_truth = column
@@ -104,6 +114,7 @@ class Predictor:
 
     def calculate_feature_matrix(self, df):
         features = [feature[1].extract_features(df) for feature in self.features]
+        # print([f.shape for f in features])
         has_sparse = False
         for feature in features:
             if issparse(feature):
@@ -135,16 +146,16 @@ class Predictor:
             # ('napoles/user_features', Features.napoles.UserFeatures()),
 
             # ======== tsagkias ========
-            # ('tsagkias/surface_features', Features.tsagkias.SurfaceFeatures()),
+            ('tsagkias/surface_features', Features.tsagkias.SurfaceFeatures()),
             # ('tsagkias/cumulative_features', Features.tsagkias.CumulativeFeatures()),
             # ('tsagkias/real_world_features', Features.tsagkias.RealWorldFeatures()),
             # ('tsagkias/semantic_features', Features.tsagkias.SemanticFeatures()),
             # ('tsagkias/text_features', Features.tsagkias.TextFeatures()),
 
             # ======== bandari ========
-            ('bandari/semantic_features', Features.bandari.SemanticFeatures()),
-            ('bandari/subjectivity_features', Features.bandari.SubjectivityFeatures()),
-            ('bandari/t_density_features', Features.bandari.TDensityFeatures()),
+            # ('bandari/semantic_features', Features.bandari.SemanticFeatures()),
+            # ('bandari/subjectivity_features', Features.bandari.SubjectivityFeatures()),
+            # ('bandari/t_density_features', Features.bandari.TDensityFeatures()),
 
             # ========== own ===========
             # ('subjectivity_features', Features.SubjectivityFeatures()),
@@ -161,6 +172,7 @@ class Predictor:
         ]
 
         self.regressors = [
-            ('svr', SVR()),
+            # ('svr', SVR()),
             ('linear_regression', LinearRegression()),
+            ('ridge_regression', RidgeRegression()),
         ]

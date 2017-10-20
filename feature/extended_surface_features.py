@@ -11,6 +11,11 @@ class ExtendedSurfaceFeatures(Features):
     hour = df['hour']
     features.append(hour)
 
+    month = df['month']
+
+    day = df['day']
+    features.append(month * 30 + day)
+
     year = df['year']
     features.append(year)
 
