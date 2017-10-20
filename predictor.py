@@ -93,7 +93,7 @@ class Predictor:
         }
         for learner in self.regressors:
             metrics[learner[0]] = {
-                'coef': np.arange(learner[1].model.coef_), #  if learner[0] == 'linear_regression' else None,
+                # 'coef': np.arange(learner[1].model.coef_) if learner[0] == 'linear_regression' else None,
                 'rmse': float("%.2f" % mean_squared_error(ground_truth, predictions[learner[0]]) ** 0.5)
             }
 
@@ -147,7 +147,7 @@ class Predictor:
             # ('napoles/user_features', Features.napoles.UserFeatures()),
 
             # ======== tsagkias ========
-            ('tsagkias/surface_features', Features.tsagkias.SurfaceFeatures()),
+            # ('tsagkias/surface_features', Features.tsagkias.SurfaceFeatures()),
             # ('tsagkias/cumulative_features', Features.tsagkias.CumulativeFeatures()),
             # ('tsagkias/real_world_features', Features.tsagkias.RealWorldFeatures()),
             # ('tsagkias/semantic_features', Features.tsagkias.SemanticFeatures()),
@@ -166,7 +166,7 @@ class Predictor:
             ('meta_features', Features.MetaFeatures()),
             # ('topic_features', Features.TopicFeatures()),
             # ('semantic_features', Features.SemanticFeatures()),
-            ('other_features', Features.CarlFeatures()),
+            ('other_features', CarlFeatures()),
         ]
 
         self.classifier = [
@@ -174,7 +174,7 @@ class Predictor:
         ]
 
         self.regressors = [
-            # ('svr', SVR()),
+            ('svr', SVR()),
             ('linear_regression', LinearRegression()),
             ('ridge_regression', RidgeRegression()),
         ]

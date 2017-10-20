@@ -19,10 +19,10 @@ class MetaFeatures(Features):
 
     features = [
         sparse_vstack(df['author'].apply(lambda x: self.hot_encoding(str(x).split(', '), encoder['author'])).as_matrix()),
-        sparse_vstack(df['source'].apply(lambda x: self.hot_encoding([str(x)], encoder['source'])).as_matrix()),
+        sparse_vstack(df['source'].apply(lambda x: self.hot_encoding(str(x).split(', '), encoder['source'])).as_matrix()),
         sparse_vstack(df['tags'].apply(lambda x: self.hot_encoding(str(x).split(', '), encoder['tags'])).as_matrix()),
-        np.vstack(df['video_count'].as_matrix()),
-        np.vstack(df['gallery_text'].apply(lambda x: str(x) != 'nan').as_matrix())
+        np.nan_to_num(np.vstack(df['video_count'].as_matrix())),
+        # np.vstack(df['gallery_text'].apply(lambda x: str(x) != 'nan').as_matrix()) # not available in dataset
     ]
 
     return sparse_hstack(features)
