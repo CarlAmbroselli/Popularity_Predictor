@@ -13,6 +13,7 @@ from classifier.linear_regression import LinearRegression
 # from classifier.naive_bayes import NaiveBayes
 from classifier.logistic_regression import LogisticRegression
 import feature as Features
+from feature.carl.features import Features as CarlFeatures
 
 class Predictor:
     def fit(self, df):
@@ -142,18 +143,19 @@ class Predictor:
             # ('tsagkias/text_features', Features.tsagkias.TextFeatures()),
 
             # ======== bandari ========
-            ('bandari/semantic_features', Features.bandari.SemanticFeatures()),
-            ('bandari/subjectivity_features', Features.bandari.SubjectivityFeatures()),
-            ('bandari/t_density_features', Features.bandari.TDensityFeatures()),
+            # ('bandari/semantic_features', Features.bandari.SemanticFeatures()),
+            # ('bandari/subjectivity_features', Features.bandari.SubjectivityFeatures()),
+            # ('bandari/t_density_features', Features.bandari.TDensityFeatures()),
 
             # ========== own ===========
             # ('subjectivity_features', Features.SubjectivityFeatures()),
             # ('word2vec', Features.Word2Vec()),
             # ('ngram_features', Features.NGramFeatures()),
             # ('doc2vec_features', Features.Doc2VecFeatures()),
-            # ('meta_features', Features.MetaFeatures()),
+            ('meta_features', Features.MetaFeatures()),
             # ('topic_features', Features.TopicFeatures()),
             # ('semantic_features', Features.SemanticFeatures()),
+            ('other_features', Features.CarlFeatures()),
         ]
 
         self.classifier = [
@@ -161,6 +163,6 @@ class Predictor:
         ]
 
         self.regressors = [
-            ('svr', SVR()),
+            # ('svr', SVR()),
             ('linear_regression', LinearRegression()),
         ]
