@@ -21,6 +21,12 @@ def init_nltk():
 def load_data(dataset='tiny'):
     train_df = pd.read_csv('data/datasets/' + dataset + '/train/articles.csv', sep=',')
     test_df = pd.read_csv('data/datasets/' + dataset + '/test/articles.csv', sep=',')
+    # train_df = pd.read_csv('data/datasets/' + dataset + '/train/comments.csv', sep=',')
+    # test_df = pd.read_csv('data/datasets/' + dataset + '/test/comments.csv', sep=',')
+    # train_df['text'] = train_df['text_de']
+    # test_df['text'] = test_df['text_de']
+    # train_df = train_df[train_df['ressort'] == 'karriere']
+    # test_df = test_df[test_df['ressort'] == 'karriere']
     train_df['has_comments'] = train_df['comment_count'] > 0
     test_df['has_comments'] = test_df['comment_count'] > 0
     return (train_df, test_df)
@@ -47,8 +53,8 @@ def execute(dataset='tiny', individual=False):
         print("Predict...")
         result = predictor.predict(test_df)
         result['real'] = predictor.ground_truth(test_df)
-        print("Result:")
-        print(result.head(5))
+        # print("Result:")
+        # print(result.head(5))
         print("Metrics for {}:".format(target))
         print(json.dumps(predictor.metrics(), indent=2))
         # visualizer = Visualize()
@@ -75,7 +81,7 @@ def main():
         'Tr09-16Te17'
     ]
     for dataset in datasets:
-        execute(dataset, individual=True)
+        execute(dataset, individual=False)
 
 
 if __name__ == '__main__':
