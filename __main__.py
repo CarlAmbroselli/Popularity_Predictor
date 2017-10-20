@@ -39,10 +39,10 @@ def execute(dataset='tiny', individual=False):
     # targets = [('y_persuasive', 'classification'), ('y_audience', 'classification'), ('y_agreement_with_commenter', 'classification'), ('y_informative', 'classification'), ('y_mean', 'classification'), ('y_controversial', 'classification'), ('y_disagreement_with_commenter', 'classification'), ('y_off_topic_with_article', 'classification'), ('y_sentiment_neutral', 'classification'), ('y_sentiment_positive', 'classification'), ('y_sentiment_negative', 'classification'), ('y_sentiment_mixed', 'classification')]
 
     # tsagkias
-    # targets = [('has_comments', 'classification')]
+    targets = [('has_comments', 'classification'), ('comment_count', 'regression')]
 
     # bandari
-    targets = [('facebook_shares', 'regression')]
+    # targets = [('facebook_shares', 'regression')]
 
     train_df, test_df = load_data(dataset)
     for target in targets:
