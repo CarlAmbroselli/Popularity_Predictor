@@ -40,10 +40,9 @@ def execute(dataset='tiny', individual=False):
 
     # tsagkias
     # targets = [('has_comments', 'classification')]
-    targets = [('comment_count', 'regression')]
 
     # bandari
-    # targets = [('facebook_shares', 'regression')]
+    targets = [('facebook_shares', 'regression')]
 
     train_df, test_df = load_data(dataset)
     for target in targets:
