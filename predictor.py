@@ -121,6 +121,7 @@ class Predictor:
             if issparse(feature):
                 has_sparse = True
         # [print(f.shape) for f in features]
+        # [print(np.isnan(f).any()) for f in features]
         if len(features) == 1:
             feature_matrix = features[0]
         else:
@@ -136,13 +137,13 @@ class Predictor:
     def __init__(self):
         self.features = [
             # ======== napoles ========
-            # ('napoles/bow_features', Features.napoles.BowFeatures()),
-            # ('napoles/embeddings_features', Features.napoles.EmbeddingsFeatures()),
-            # ('napoles/entity_features', Features.napoles.EntityFeatures()),
-            # ('napoles/length_features', Features.napoles.LengthFeatures()),
-            # ('napoles/lexicon_features', Features.napoles.LexiconFeatures()),
+            ('napoles/bow_features', Features.napoles.BowFeatures()),
+            ('napoles/embeddings_features', Features.napoles.EmbeddingsFeatures()),
+            ('napoles/entity_features', Features.napoles.EntityFeatures()),
+            ('napoles/length_features', Features.napoles.LengthFeatures()),
+            ('napoles/lexicon_features', Features.napoles.LexiconFeatures()),
             # ('napoles/popularity_features', Features.napoles.PopularityFeatures()),
-            # ('napoles/pos_features', Features.napoles.POSFeatures()),
+            ('napoles/pos_features', Features.napoles.POSFeatures()),
             # ('napoles/similarity_features', Features.napoles.SimilarityFeatures()),
             # ('napoles/user_features', Features.napoles.UserFeatures()),
 
@@ -163,10 +164,10 @@ class Predictor:
             # ('word2vec', Features.Word2Vec()),
             # ('ngram_features', Features.NGramFeatures()),
             # ('doc2vec_features', Features.Doc2VecFeatures()),
-            ('meta_features', Features.MetaFeatures()),
+            # ('meta_features', Features.MetaFeatures()),
             # ('topic_features', Features.TopicFeatures()),
             # ('semantic_features', Features.SemanticFeatures()),
-            ('other_features', CarlFeatures()),
+            # ('other_features', CarlFeatures()),
         ]
 
         self.classifier = [

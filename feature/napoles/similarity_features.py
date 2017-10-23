@@ -11,7 +11,8 @@ class SimilarityFeatures(Features):
 
   def initialize_variables(self):
     # load model
-    self.w2v_model = gensim.models.KeyedVectors.load_word2vec_format('model/word2vec/GoogleNews-vectors-negative300.bin', binary=True)
+    # self.w2v_model = gensim.models.KeyedVectors.load_word2vec_format('model/word2vec/GoogleNews-vectors-negative300.bin', binary=True)
+    self.w2v_model = gensim.models.KeyedVectors.load_word2vec_format('model/word2vec/german.model', binary=True)
 
   def _extract_features(self, df):
     if self.w2v_model is None:

@@ -12,7 +12,7 @@ class POSFeatures(Features):
 
   def _extract_features(self, df):
     if self.first_run:
-      self.nlp = spacy.load('en')
+      self.nlp = spacy.load('de')
     pos = df['text'].apply(lambda x: ' '.join([word.pos_ for word in self.nlp(x)]))
 
     if self.first_run:
