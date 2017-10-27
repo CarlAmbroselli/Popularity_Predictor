@@ -45,7 +45,7 @@ class TextFeatures(Features):
       # Extract urlressort
       # ==========================
       # def extract_url(url):
-      #   search =  re.search("http://www.zeit.de/([^/]+)/.*", url)
+      #   search =  re.search("it.de/([^/]+)/.*", url)
       #   if search:
       #     return search.group(1)
       #   else:
