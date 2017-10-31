@@ -57,3 +57,5 @@ class Translator:
       return ('ERROR DURING TRANSLATION')
     except AttributeError:
       return ('ERROR DURING TRANSLATION')
+    except:
+      return ('ERROR DURING TRANSLATION')
