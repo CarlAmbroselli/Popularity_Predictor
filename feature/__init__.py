@@ -7,6 +7,7 @@ from feature.topic_features import TopicFeatures
 from feature.meta_features import MetaFeatures
 from feature.text_features import TextFeatures
 from feature.semantic_features import SemanticFeatures
+from feature.cnn_classification import CNN_Classification
 import feature.tsagkias
 import feature.napoles
 import feature.bandari

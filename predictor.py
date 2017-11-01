@@ -163,10 +163,11 @@ class Predictor:
             # ('word2vec', Features.Word2Vec()),
             # ('ngram_features', Features.NGramFeatures()),
             # ('doc2vec_features', Features.Doc2VecFeatures()),
-            ('meta_features', Features.MetaFeatures()),
+            # ('meta_features', Features.MetaFeatures()),
             # ('topic_features', Features.TopicFeatures()),
             # ('semantic_features', Features.SemanticFeatures()),
-            ('other_features', CarlFeatures()),
+            # ('other_features', CarlFeatures()),
+            ('CNN', Features.CNN_Classification()),
         ]
 
         self.classifier = [
@@ -174,7 +175,7 @@ class Predictor:
         ]
 
         self.regressors = [
-            ('svr', SVR()),
+            # ('svr', SVR()),
             ('linear_regression', LinearRegression()),
-            ('ridge_regression', RidgeRegression()),
+            # ('ridge_regression', RidgeRegression()),
         ]
