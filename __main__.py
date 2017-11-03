@@ -27,8 +27,12 @@ def load_data(dataset='tiny'):
     # test_df['text'] = test_df['text_de']
     # train_df = train_df[train_df['ressort'] == 'karriere']
     # test_df = test_df[test_df['ressort'] == 'karriere']
+    train_df['no_comments'] = train_df['comment_count'] == 0
+    test_df['no_comments'] = test_df['comment_count'] == 0
     train_df['has_comments'] = train_df['comment_count'] > 0
     test_df['has_comments'] = test_df['comment_count'] > 0
+    train_df['has_many_comments'] = train_df['comment_count'] > 83
+    test_df['has_many_comments'] = test_df['comment_count'] > 83
     return (train_df, test_df)
 
 def execute(dataset='tiny', individual=False):
@@ -39,10 +43,10 @@ def execute(dataset='tiny', individual=False):
     # targets = [('y_persuasive', 'classification'), ('y_audience', 'classification'), ('y_agreement_with_commenter', 'classification'), ('y_informative', 'classification'), ('y_mean', 'classification'), ('y_controversial', 'classification'), ('y_disagreement_with_commenter', 'classification'), ('y_off_topic_with_article', 'classification'), ('y_sentiment_neutral', 'classification'), ('y_sentiment_positive', 'classification'), ('y_sentiment_negative', 'classification'), ('y_sentiment_mixed', 'classification')]
 
     # tsagkias
-    targets = [('has_comments', 'classification'), ('comment_count', 'regression')]
+    targets = [('no_comments', 'classification'), ('has_comments', 'classification'), ('has_many_comments', 'classification'), ('comment_count', 'regression'), ('facebook_shares', 'regression')]
 
     # bandari
-    # targets = [('facebook_shares', 'regression')]
+    targets = [('facebook_shares', 'regression')]
 
     train_df, test_df = load_data(dataset)
     for target in targets:
@@ -71,6 +75,7 @@ def execute(dataset='tiny', individual=False):
                 print(json.dumps(predictor.metrics(), indent=2))
 
 def main():
+    print("Init")
     init_nltk()
     datasets = [
         # 'Tiny',
@@ -80,8 +85,9 @@ def main():
         # 'Tr16Te17',
         'Tr09-16Te17'
     ]
+    print("Execute")
     for dataset in datasets:
-        execute(dataset, individual=False)
+        execute(dataset, individual=True)
 
 
 if __name__ == '__main__':
