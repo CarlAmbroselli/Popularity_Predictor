@@ -8,8 +8,11 @@ class Features(Features):
   def _extract_features(self, df):
     features = []
 
-    year_month = (df['year'] - 2009)*12 + df['month']
-    features.append(year_month)
+    year_month = (df['year'] - 2014)*12 + df['month']
+    features.append(year_month, year_month ** 2)    
+
+    year_month_day = (df['year'] - 2014)*12*31 + df['month']*12 + df['day']
+    features.append(year_month_day, year_month_day ** 2)
 
     publish_datestring = df['publish_datestring']
     features.append(publish_datestring)
