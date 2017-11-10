@@ -15,6 +15,8 @@ from classifier.ridge_regression import RidgeRegression
 from classifier.logistic_regression import LogisticRegression
 import feature as Features
 from feature.carl.features import Features as CarlFeatures
+from sklearn.metrics import roc_curve, auc
+import code
 
 class Predictor:
     def fit(self, df):
@@ -27,7 +29,10 @@ class Predictor:
 
         feature_matrix = self.calculate_feature_matrix(df)
         print("...using", feature_matrix.shape[1], "features from", ", ".join([feature[0] for feature in self.features]))
-        learners = self.regressors if self._useRegression else self.classifier
+        if self._useRegression and len(np.unique(ground_truth)) < 3:
+            learners = self.auc_regressors
+        else:
+            learners = self.regressors if self._useRegression else self.classifier
         for learner in learners:
             learner[1].fit(feature_matrix, self.ground_truth(df))
 
@@ -35,7 +40,10 @@ class Predictor:
         # Generate the features and predict the results.
         feature_matrix = self.calculate_feature_matrix(df)
         predictions = pd.DataFrame()
-        learners = self.regressors if self._useRegression else self.classifier
+        if self._useRegression and len(np.unique(self.ground_truth(df))) < 3:
+            learners = self.auc_regressors
+        else:
+            learners = self.regressors if self._useRegression else self.classifier
         for learner in learners:
             predictions[learner[0]] = learner[1].predict(feature_matrix)
 
@@ -58,6 +66,7 @@ class Predictor:
                 )
                 metrics[classifier[0]] = dict(zip(['precision', 'recall', 'f-score', 'support'], scores))
                 metrics[classifier[0]]['accuracy'] = accuracy_score(self.ground_truth(df), normalize(predictions[classifier[0]]) > cutoff)
+                metrics[classifier[0]]['accuracy'] = accuracy_score(self.ground_truth(df), normalize(predictions[classifier[0]]) > cutoff)
                 if metrics[classifier[0]][metric] > threshold:
                     break
         self._metrics = metrics
@@ -73,7 +82,7 @@ class Predictor:
                 average='binary'
             )
             metrics[classifier[0]] = dict(zip(['precision', 'recall', 'f-score', 'support'], scores))
-            metrics[classifier[0]]['accuracy'] = accuracy_score(self.ground_truth(df), predictions[classifier[0]])
+            # metrics[classifier[0]]['accuracy'] = accuracy_score(self.ground_truth(df), predictions[classifier[0]])
             metrics['class-ratio'] = np.sum(predictions[classifier[0]])/len(predictions[classifier[0]])
 
         self._metrics = metrics
@@ -88,13 +97,20 @@ class Predictor:
                 'train_mean': float("%.2f" % self.training_mean()),
                 'mean': float("%.2f" % mean),
                 'size': size,
-                'rmse (avg)': float("%.2f" % mean_squared_error(ground_truth, np.ones((size, 1)) * mean) ** 0.5)
+                'rmse (train mean)': float("%.2f" % mean_squared_error(ground_truth, np.ones((size, 1)) * self.training_mean()) ** 0.5)
             }
         }
-        for learner in self.regressors:
+        regressors = self.regressors if len(np.unique(ground_truth)) >= 3 else self.auc_regressors
+        for learner in regressors:
+            if len(np.unique(ground_truth)) < 3:
+                false_positive_rate, true_positive_rate, thresholds = roc_curve(ground_truth, predictions[learner[0]])
+                roc_auc = auc(false_positive_rate, true_positive_rate)
+            else:
+                roc_auc = 'n/a'
             metrics[learner[0]] = {
                 # 'coef': np.arange(learner[1].model.coef_) if learner[0] == 'linear_regression' else None,
-                'rmse': float("%.2f" % mean_squared_error(ground_truth, predictions[learner[0]]) ** 0.5)
+                'rmse': float("%.2f" % mean_squared_error(ground_truth, predictions[learner[0]]) ** 0.5),
+                'auc': roc_auc
             }
 
         self._metrics = metrics
@@ -115,7 +131,8 @@ class Predictor:
 
     def calculate_feature_matrix(self, df):
         features = [feature[1].extract_features(df) for feature in self.features]
-        # print([f.shape for f in features])
+        print([f.shape for f in features])
+        # code.interact(local=locals())
         has_sparse = False
         for feature in features:
             if issparse(feature):
@@ -147,27 +164,27 @@ class Predictor:
             # ('napoles/user_features', Features.napoles.UserFeatures()),
 
             # ======== tsagkias ========
-            # ('tsagkias/surface_features', Features.tsagkias.SurfaceFeatures()),
-            # ('tsagkias/cumulative_features', Features.tsagkias.CumulativeFeatures()),
-            # ('tsagkias/real_world_features', Features.tsagkias.RealWorldFeatures()),
+            ('tsagkias/surface_features', Features.tsagkias.SurfaceFeatures()),
+            ('tsagkias/cumulative_features', Features.tsagkias.CumulativeFeatures()),
+            ('tsagkias/real_world_features', Features.tsagkias.RealWorldFeatures()),
             # ('tsagkias/semantic_features', Features.tsagkias.SemanticFeatures()),
-            # ('tsagkias/text_features', Features.tsagkias.TextFeatures()),
+            ('tsagkias/text_features', Features.tsagkias.TextFeatures()),
 
             # ======== bandari ========
             # ('bandari/semantic_features', Features.bandari.SemanticFeatures()),
-            # ('bandari/subjectivity_features', Features.bandari.SubjectivityFeatures()),
-            # ('bandari/t_density_features', Features.bandari.TDensityFeatures()),
+            ('bandari/subjectivity_features', Features.bandari.SubjectivityFeatures()),
+            ('bandari/t_density_features', Features.bandari.TDensityFeatures()),
 
             # ========== own ===========
             # ('subjectivity_features', Features.SubjectivityFeatures()),
-            # ('word2vec', Features.Word2Vec()),
-            # ('ngram_features', Features.NGramFeatures()),
-            # ('doc2vec_features', Features.Doc2VecFeatures()),
-            # ('meta_features', Features.MetaFeatures()),
-            # ('topic_features', Features.TopicFeatures()),
-            # ('semantic_features', Features.SemanticFeatures()),
-            # ('other_features', CarlFeatures()),
-            ('CNN', Features.CNN_Classification()),
+            # ('CNN', Features.CNN_Classification()),
+            ('word2vec', Features.Word2Vec()),
+            ('ngram_features', Features.NGramFeatures()),
+            ('doc2vec_features', Features.Doc2VecFeatures()),
+            ('meta_features', Features.MetaFeatures()),
+            ('topic_features', Features.TopicFeatures()),
+            ('semantic_features', Features.SemanticFeatures()),
+            ('other_features', CarlFeatures()),
         ]
 
         self.classifier = [
@@ -175,7 +192,15 @@ class Predictor:
         ]
 
         self.regressors = [
+            # ('logistic regression', LogisticRegression()),
             # ('svr', SVR()),
             ('linear_regression', LinearRegression()),
+            ('ridge_regression', RidgeRegression()),
+        ]        
+
+        self.auc_regressors = [
+            ('logistic regression', LogisticRegression(probabilities=True)),
+            # ('svr', SVR()),
+            # ('linear_regression', LinearRegression()),
             # ('ridge_regression', RidgeRegression()),
         ]

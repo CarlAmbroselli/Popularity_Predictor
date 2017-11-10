@@ -4,6 +4,8 @@ import numpy as np
 from nltk.corpus import stopwords
 from feature.features import Features
 
+
+
 class NGramFeatures(Features):
   def __init__(self):
     super().__init__('ngram_features')

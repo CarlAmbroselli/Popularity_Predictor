@@ -24,7 +24,7 @@ class TopicFeatures(Features):
 
   def _extract_features(self, df):
     dict, lda = self.topic_model()
-    data = Helper.remove_stop_and_stem(df['text'])
+    data = Helper.remove_stop(df['text'])
     bow_data = data.apply(lambda x: dict.doc2bow(x.split(' ')))
     features = bow_data.apply(lambda x: lda.get_document_topics(x, minimum_probability=0))
 
@@ -33,8 +33,8 @@ class TopicFeatures(Features):
   def topic_model(self):
     if self.dict is not None and self.lda is not None:
       return (self.dict, self.lda)
-    topic_filepath = 'feature/cache/topicmodel'
-    dict_filepath = 'feature/cache/topicmodel_dict'
+    topic_filepath = 'feature/cache/topicmodel_100'
+    dict_filepath = 'feature/cache/topicmodel_100_dict'
     if os.path.isfile(topic_filepath) and os.path.isfile(dict_filepath):
       self.dict = corpora.Dictionary().load(dict_filepath)
       self.lda = models.LdaModel.load(topic_filepath)
@@ -42,14 +42,14 @@ class TopicFeatures(Features):
     else:
       print('Recalculating model')
       doc_list = pd.read_csv('data/datasets/Tr09-16Te17/train/articles.csv', sep=',')['text']
-      articles = Helper.remove_stop_and_stem(doc_list)
+      articles = Helper.remove_stop(doc_list)
       dictionary = corpora.Dictionary(articles.apply(lambda x: x.split(' ')))
       dictionary.save(dict_filepath)
       corpus = [dictionary.doc2bow(text.split(' ')) for text in articles]
       self.dict = dictionary
 
       print('Starting training')
-      self.lda = models.ldamodel.LdaModel(corpus, num_topics=200, alpha='auto')
+      self.lda = models.ldamodel.LdaModel(corpus, num_topics=100, alpha='auto')
       # save the trained model
       self.lda.save(topic_filepath)
       print('Finished training')
