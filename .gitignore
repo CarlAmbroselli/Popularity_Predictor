@@ -16,7 +16,9 @@ feature/cache/*.pickle
 feature/cache/doc2vec*
 
 model/word2vec/GoogleNews-vectors-negative300.bin
+model/word2vec/all_lowercased_stemmed_*
 feature/cache/topicmodel*
 feature/cache/topicmodel_dict
 
 preprocessing/dataset_ynacc.ipynb
+*.csv

@@ -17,10 +17,11 @@ import gensim.models as models
 from feature.helper import Helper
 
 class TopicFeatures(Features):
-  def __init__(self):
-    super().__init__('topic_features')
+  def __init__(self, num_topics=100):
+    super().__init__('topic_features?' + str(num_topics))
     self.lda = None
     self.dict = None
+    self.num_topics = num_topics
 
   def _extract_features(self, df):
     dict, lda = self.topic_model()
@@ -33,15 +34,15 @@ class TopicFeatures(Features):
   def topic_model(self):
     if self.dict is not None and self.lda is not None:
       return (self.dict, self.lda)
-    topic_filepath = 'feature/cache/topicmodel_100'
-    dict_filepath = 'feature/cache/topicmodel_100_dict'
+    topic_filepath = 'feature/cache/topicmodel_' + str(self.num_topics)
+    dict_filepath = 'feature/cache/topicmodel_' + str(self.num_topics) + '_dict'
     if os.path.isfile(topic_filepath) and os.path.isfile(dict_filepath):
       self.dict = corpora.Dictionary().load(dict_filepath)
       self.lda = models.LdaModel.load(topic_filepath)
       return (self.dict, self.lda)
     else:
       print('Recalculating model')
-      doc_list = pd.read_csv('data/datasets/Tr09-16Te17/train/articles.csv', sep=',')['text']
+      doc_list = pd.read_csv('data/datasets/all/articles.csv', sep=',')['text']
       articles = Helper.remove_stop(doc_list)
       dictionary = corpora.Dictionary(articles.apply(lambda x: x.split(' ')))
       dictionary.save(dict_filepath)
@@ -49,7 +50,7 @@ class TopicFeatures(Features):
       self.dict = dictionary
 
       print('Starting training')
-      self.lda = models.ldamodel.LdaModel(corpus, num_topics=100, alpha='auto')
+      self.lda = models.ldamodel.LdaModel(corpus, num_topics=self.num_topics, alpha='auto')
       # save the trained model
       self.lda.save(topic_filepath)
       print('Finished training')

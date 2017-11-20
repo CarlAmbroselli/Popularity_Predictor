@@ -2,7 +2,6 @@ import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve, auc
-import latexipy as lp
 import time
 
 class Visualize:
@@ -21,18 +20,16 @@ class Visualize:
         plt.show()
 
     def plot_roc(self, ground_truth, predictions):
-        lp.latexify()
-        with lp.figure('roc_' + str(int(time.time()))):
-          false_positive_rate, true_positive_rate, thresholds = roc_curve(ground_truth, predictions)
-          roc_auc = auc(false_positive_rate, true_positive_rate)
-          plt.title('Receiver Operating Characteristic')
-          plt.plot(false_positive_rate, true_positive_rate, 'b',
-                   label='AUC = %0.2f' % roc_auc)
-          plt.legend(loc='lower right')
-          plt.plot([0, 1], [0, 1], 'r--')
-          plt.xlim([-0.1, 1.2])
-          plt.ylim([-0.1, 1.2])
-          plt.ylabel('True Positive Rate')
-          plt.xlabel('False Positive Rate')
-          # plt.savefig('figures/roc_' + str(int(time.time())) + '.png')
-          plt.show()
+        false_positive_rate, true_positive_rate, thresholds = roc_curve(ground_truth, predictions)
+        roc_auc = auc(false_positive_rate, true_positive_rate)
+        plt.title('Receiver Operating Characteristic')
+        plt.plot(false_positive_rate, true_positive_rate, 'b',
+                 label='AUC = %0.2f' % roc_auc)
+        plt.legend(loc='lower right')
+        plt.plot([0, 1], [0, 1], 'r--')
+        plt.xlim([-0.1, 1.2])
+        plt.ylim([-0.1, 1.2])
+        plt.ylabel('True Positive Rate')
+        plt.xlabel('False Positive Rate')
+        plt.savefig('figures/roc_' + str(int(time.time())) + '.png')
+        # plt.show()

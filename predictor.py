@@ -17,6 +17,7 @@ import feature as Features
 from feature.carl.features import Features as CarlFeatures
 from sklearn.metrics import roc_curve, auc
 import code
+from feature.carl.after_publication_features import AfterPublicationFeatures
 
 class Predictor:
     def fit(self, df):
@@ -131,7 +132,7 @@ class Predictor:
 
     def calculate_feature_matrix(self, df):
         features = [feature[1].extract_features(df) for feature in self.features]
-        print([f.shape for f in features])
+        # print([f.shape for f in features])
         # code.interact(local=locals())
         has_sparse = False
         for feature in features:
@@ -148,9 +149,26 @@ class Predictor:
         scaler = MaxAbsScaler()
         scaled_feature_matrix = scaler.fit_transform(feature_matrix)
         scaled_feature_matrix = normalize(scaled_feature_matrix, norm='l2', axis=0)
-        return scaled_feature_matrix
+        # return scaled_feature_matrix
+        return feature_matrix
 
     def __init__(self):
+        self.always_use_these_features  = [
+            ('tsagkias/surface_features', Features.tsagkias.SurfaceFeatures()),
+            ('tsagkias/cumulative_features', Features.tsagkias.CumulativeFeatures()),
+            ('tsagkias/real_world_features', Features.tsagkias.RealWorldFeatures()),
+            ('tsagkias/text_features', Features.tsagkias.TextFeatures()),
+            ('bandari/subjectivity_features', Features.bandari.SubjectivityFeatures()),
+            ('bandari/t_density_features', Features.bandari.TDensityFeatures()),
+            ('word2vec-100', Features.Word2Vec(num_dimensions=100)),
+            ('ngram_features-(1,3)', Features.NGramFeatures((1, 3))),
+            ('doc2vec_features-100', Features.Doc2VecFeatures(num_dimensions=100)),
+            ('meta_features', Features.MetaFeatures()),
+            ('topic_features-100', Features.TopicFeatures(num_topics=100)),
+            ('semantic_features', Features.SemanticFeatures()),
+            ('other_features', CarlFeatures()),
+        ]
+
         self.features = [
             # ======== napoles ========
             # ('napoles/bow_features', Features.napoles.BowFeatures()),
@@ -163,28 +181,70 @@ class Predictor:
             # ('napoles/similarity_features', Features.napoles.SimilarityFeatures()),
             # ('napoles/user_features', Features.napoles.UserFeatures()),
 
-            # ======== tsagkias ========
-            ('tsagkias/surface_features', Features.tsagkias.SurfaceFeatures()),
-            ('tsagkias/cumulative_features', Features.tsagkias.CumulativeFeatures()),
-            ('tsagkias/real_world_features', Features.tsagkias.RealWorldFeatures()),
-            # ('tsagkias/semantic_features', Features.tsagkias.SemanticFeatures()),
-            ('tsagkias/text_features', Features.tsagkias.TextFeatures()),
+            # # ======== tsagkias ========
+            # ('tsagkias/surface_features', Features.tsagkias.SurfaceFeatures()),
+            # ('tsagkias/cumulative_features', Features.tsagkias.CumulativeFeatures()),
+            # ('tsagkias/real_world_features', Features.tsagkias.RealWorldFeatures()),
+            # # ('tsagkias/semantic_features', Features.tsagkias.SemanticFeatures()),
+            # ('tsagkias/text_features', Features.tsagkias.TextFeatures()),
 
-            # ======== bandari ========
-            # ('bandari/semantic_features', Features.bandari.SemanticFeatures()),
-            ('bandari/subjectivity_features', Features.bandari.SubjectivityFeatures()),
-            ('bandari/t_density_features', Features.bandari.TDensityFeatures()),
+            # # ======== bandari ========
+            # # ('bandari/semantic_features', Features.bandari.SemanticFeatures()),
+            # ('bandari/subjectivity_features', Features.bandari.SubjectivityFeatures()),
+            # ('bandari/t_density_features', Features.bandari.TDensityFeatures()),
 
-            # ========== own ===========
-            # ('subjectivity_features', Features.SubjectivityFeatures()),
-            # ('CNN', Features.CNN_Classification()),
-            ('word2vec', Features.Word2Vec()),
-            ('ngram_features', Features.NGramFeatures()),
-            ('doc2vec_features', Features.Doc2VecFeatures()),
-            ('meta_features', Features.MetaFeatures()),
-            ('topic_features', Features.TopicFeatures()),
-            ('semantic_features', Features.SemanticFeatures()),
-            ('other_features', CarlFeatures()),
+            # # ========== own ===========
+            # # ('subjectivity_features', Features.SubjectivityFeatures()),
+            # # ('CNN', Features.CNN_Classification()),
+            # # ('word2vec-50', Features.Word2Vec(num_dimensions=50)),
+            # ('word2vec-100', Features.Word2Vec(num_dimensions=100)),
+            # # ('word2vec-150', Features.Word2Vec(num_dimensions=150)),
+            # # ('word2vec-200', Features.Word2Vec(num_dimensions=200)),
+            # # ('word2vec-250', Features.Word2Vec(num_dimensions=250)),
+            # # ('word2vec-500', Features.Word2Vec(num_dimensions=500)),
+            # # ('ngram_features-(1)', Features.NGramFeatures((1,1))),
+            # # ('ngram_features-(1,2)', Features.NGramFeatures((1,2))),
+            # ('ngram_features-(1,3)', Features.NGramFeatures((1,3))),
+            # # ('ngram_features-(2)', Features.NGramFeatures((2,2))),
+            # # ('ngram_features-(2,3)', Features.NGramFeatures((2,3))),
+            # # ('ngram_features-(3)', Features.NGramFeatures((3,3))),
+            # # ('doc2vec_features-50', Features.Doc2VecFeatures(num_dimensions=50)),
+            # ('doc2vec_features-100', Features.Doc2VecFeatures(num_dimensions=100)),
+            # # ('doc2vec_features-150', Features.Doc2VecFeatures(num_dimensions=150)),
+            # # ('doc2vec_features-200', Features.Doc2VecFeatures(num_dimensions=150)),
+            # # ('doc2vec_features-250', Features.Doc2VecFeatures(num_dimensions=250)),
+            # # ('doc2vec_features-500', Features.Doc2VecFeatures(num_dimensions=500)),
+            # # ('doc2vec_features-5000', Features.Doc2VecFeatures(num_dimensions=5000)),
+            # ('meta_features', Features.MetaFeatures()),
+            # # ('topic_features-50', Features.TopicFeatures(num_topics=50)),
+            # ('topic_features-100', Features.TopicFeatures(num_topics=100)),
+            # # ('topic_features-150', Features.TopicFeatures(num_topics=150)),
+            # # ('topic_features-200', Features.TopicFeatures(num_topics=200)),
+            # # ('topic_features-250', Features.TopicFeatures(num_topics=250)),
+            # # ('topic_features-500', Features.TopicFeatures(num_topics=500)),
+            # ('semantic_features', Features.SemanticFeatures()),
+            # ('other_features', CarlFeatures()),
+
+            ('after_publication_features-2', AfterPublicationFeatures(maximum_time=2)),
+            ('after_publication_features-4', AfterPublicationFeatures(maximum_time=4)),
+            ('after_publication_features-8', AfterPublicationFeatures(maximum_time=8)),
+            ('after_publication_features-16', AfterPublicationFeatures(maximum_time=16)),
+            ('after_publication_features-32', AfterPublicationFeatures(maximum_time=32)),
+            ('after_publication_features-64', AfterPublicationFeatures(maximum_time=64)),
+            ('after_publication_features-128', AfterPublicationFeatures(maximum_time=128)),
+            ('after_publication_features-256', AfterPublicationFeatures(maximum_time=256)),
+            ('after_publication_features-512', AfterPublicationFeatures(maximum_time=512)),
+            ('after_publication_features-1024', AfterPublicationFeatures(maximum_time=1024)),
+            ('after_publication_features-2048', AfterPublicationFeatures(maximum_time=2048)),
+            ('after_publication_features-4096', AfterPublicationFeatures(maximum_time=4096)),
+            ('after_publication_features-8192', AfterPublicationFeatures(maximum_time=8192)),
+            ('after_publication_features-16384', AfterPublicationFeatures(maximum_time=16384)),
+            ('after_publication_features-32768', AfterPublicationFeatures(maximum_time=32768)),
+            ('after_publication_features-65536', AfterPublicationFeatures(maximum_time=65536)),
+            ('after_publication_features-131072', AfterPublicationFeatures(maximum_time=131072)),
+            ('after_publication_features-262144', AfterPublicationFeatures(maximum_time=262144)),
+            ('after_publication_features-524288', AfterPublicationFeatures(maximum_time=524288)),
+            ('after_publication_features-1048576', AfterPublicationFeatures(maximum_time=1048576)),
         ]
 
         self.classifier = [

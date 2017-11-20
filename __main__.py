@@ -48,13 +48,18 @@ def execute(dataset='tiny', individual=False):
 
     # tsagkias
     # targets = [('no_comments', 'classification'), ('has_comments', 'classification'), ('has_many_comments', 'classification'), ('comment_count', 'regression'), ('facebook_shares', 'regression')]
-    targets = [('no_comments', 'regression'), ('has_comments', 'regression'), ('has_many_comments', 'regression'), ('no_comments', 'classification'), ('has_comments', 'classification'), ('has_many_comments', 'classification'), ('comment_count', 'regression'), ('facebook_shares', 'regression'), ('comment_count_minus_last_month_average', 'regression'), ('facebook_shares_minus_last_month_average', 'regression'), ('shared_on_facebook', 'classification'), ('likes_on_facebook', 'regression'), ('comments_on_facebook', 'regression')]
+    # targets = [('no_comments', 'regression'), ('has_comments', 'regression'), ('has_many_comments', 'regression'), ('no_comments', 'classification'), ('has_comments', 'classification'), ('has_many_comments', 'classification'), ('comment_count', 'regression'), ('facebook_shares', 'regression'), ('comment_count_minus_last_month_average', 'regression'), ('facebook_shares_minus_last_month_average', 'regression'), ('shared_on_facebook', 'classification'), ('likes_on_facebook', 'regression'), ('comments_on_facebook', 'regression')]
+
+    targets = [('comment_count_incl_deleted', 'regression')]
+    # targets = [('has_comments', 'regression'), ('has_many_comments', 'regression')]
+
     # targets = [('comment_count_minus_last_month_average', 'regression'), ('facebook_shares_minus_last_month_average', 'regression'), ('shared_on_facebook', 'classification'), ('likes_on_facebook', 'regression'), ('comments_on_facebook', 'regression')]
 
 
     # bandari
     # targets = [('facebook_shares', 'regression')]
-
+    
+    results_df = pd.DataFrame()
     train_df, test_df = load_data(dataset)
     for target in targets:
         print('=' * 50)
@@ -70,6 +75,11 @@ def execute(dataset='tiny', individual=False):
         result['real'] = predictor.ground_truth(test_df)
         # print("Result:")
         # print(result.head(5))
+        try:
+            results_df[target] = result['logistic regression']
+            results_df[target + '_ground_truth'] = predictor.ground_truth(test_df)
+        except:
+            pass
         print("Metrics for {}:".format(target))
         print(json.dumps(predictor.metrics(), indent=2))
         try:
@@ -82,11 +92,13 @@ def execute(dataset='tiny', individual=False):
             features = predictor.features
             for feature in features:
                 print("Feature: {}".format(feature[0]))
-                predictor.features = [feature]
+                predictor.features = [feature] + predictor.always_use_these_features
                 predictor.fit(train_df)
                 result = predictor.predict(test_df)
                 result['real'] = predictor.ground_truth(test_df)
                 print(json.dumps(predictor.metrics(), indent=2))
+                # print(predictor.metrics()['linear_regression']['rmse'])
+    # results_df.to_csv('results_output_tsagkias.csv')
 
 def main():
     print("Init")
@@ -96,9 +108,9 @@ def main():
         # 'YNACC-Evaluation',
         # 'YNACC',
         # 'Tr16Te17-Small',
-        # 'Tr16Te17',
+        'Tr16Te17',
         # 'Tr09-16Te17',
-        'Tr14-16Te17'
+        # 'Tr14-16Te17'
     ]
     print("Execute")
     for dataset in datasets:

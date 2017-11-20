@@ -7,13 +7,14 @@ from feature.features import Features
 
 
 class NGramFeatures(Features):
-  def __init__(self):
-    super().__init__('ngram_features')
+  def __init__(self, ngram_range=(1, 3)):
+    super().__init__('ngram_features?' + str(ngram_range))
+    self.ngram_range = ngram_range
     self.first_run = True
 
   def _extract_features(self, df):
     if self.first_run:
-      self.count_vectorizer = CountVectorizer(ngram_range=(1, 3), min_df=2, stop_words=stopwords.words('german'))
+      self.count_vectorizer = CountVectorizer(ngram_range=self.ngram_range, min_df=2, stop_words=stopwords.words('german'))
       self.tfidf_transformer = TfidfTransformer()
       counts = self.count_vectorizer.fit_transform(df["text"])
       features = self.tfidf_transformer.fit_transform(counts)

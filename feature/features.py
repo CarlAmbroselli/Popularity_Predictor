@@ -5,7 +5,7 @@ import pickle
 from termcolor import colored
 from glob import glob
 import os
-
+import re
 
 class Features:
     def __init__(self, file):
@@ -21,8 +21,11 @@ class Features:
             print('Recalculating:', colored(self.file, 'red', attrs=['bold']))
             features = self._extract_features(df)
             filename = self.filepath(df)[0]
-            pickle.dump(features, open(filename, 'wb'))
-            print('saved features at:', filename)
+            try:
+                pickle.dump(features, open(filename, 'wb'), protocol=-1)
+                print('saved features at:', filename)
+            except:
+                print('Failed saving features. Probably >4Gb')
             return features
 
     def _extract_features(self, df):
@@ -38,7 +41,7 @@ class Features:
     def filepath(self, df):
         hash = hashlib.md5(''.join(str(x) for x in [df.shape, df.head(2), df.tail(2)]).encode('utf-8')).hexdigest()[:8]
         hasher = hashlib.md5()
-        with open('feature/' + self.file +  '.py', 'rb') as afile:
+        with open('feature/' + re.sub('\?.*', '', self.file) + '.py', 'rb') as afile:
             buf = afile.read()
             hasher.update(buf)
         filehash = hasher.hexdigest()[:8]
