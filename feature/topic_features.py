@@ -50,7 +50,7 @@ class TopicFeatures(Features):
       self.dict = dictionary
 
       print('Starting training')
-      self.lda = models.ldamodel.LdaModel(corpus, num_topics=self.num_topics, alpha='auto')
+      self.lda = models.ldamodel.LdaMulticore(corpus, num_topics=self.num_topics, alpha='auto', workers=10)
       # save the trained model
       self.lda.save(topic_filepath)
       print('Finished training')

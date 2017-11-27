@@ -34,7 +34,10 @@ class Features:
     def load_cached(self, df):
         filepath = self.filepath(df)[0]
         if os.path.isfile(filepath):
-            return pickle.load(open(filepath, 'rb'))
+            try: 
+               return pickle.load(open(filepath, 'rb'))
+            except:
+               return None
         else:
             return None
 

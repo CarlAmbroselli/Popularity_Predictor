@@ -23,11 +23,11 @@ class SemanticFeatures(Features):
 
     features = df['text'].apply(lambda x: self.count_entities(str(x)))
     features = np.vstack(features)
-    tfidf_features = self.named_entities_tfidf(df['text'])
+    # tfidf_features = self.named_entities_tfidf(df['text'])
 
-    resulting_features = [tfidf_features, features, np.vstack(np.sum(features, axis=1)), np.vstack(np.max(features, axis=1)), np.vstack(np.average(features, axis=1))]
+    # resulting_features = [tfidf_features, features, np.vstack(np.sum(features, axis=1)), np.vstack(np.max(features, axis=1)), np.vstack(np.average(features, axis=1))]
 
-    return sparse_hstack(resulting_features)
+    return features # sparse_hstack(resulting_features)
 
 
   def named_entities_tfidf(self, articles):
@@ -71,15 +71,15 @@ class SemanticFeatures(Features):
   def count_entities(self, text):
     counts = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     doc = self.nlp(text)
-    top_entities = self.top_entities()
-    top_entities_count = [0] * 150
+    # top_entities = self.top_entities()
+    # top_entities_count = [0] * 150
     for ent in doc.ents:
-      if ent.text in top_entities['LOC']:
-        top_entities_count[top_entities['LOC'].index(ent.text)] += 1
-      if ent.text in top_entities['ORG']:
-        top_entities_count[top_entities['ORG'].index(ent.text) + 50] += 1
-      if ent.text in top_entities['PERSON']:
-        top_entities_count[top_entities['PERSON'].index(ent.text) + 100] += 1
+      # if ent.text in top_entities['LOC']:
+      #   top_entities_count[top_entities['LOC'].index(ent.text)] += 1
+      # if ent.text in top_entities['ORG']:
+      #   top_entities_count[top_entities['ORG'].index(ent.text) + 50] += 1
+      # if ent.text in top_entities['PERSON']:
+      #   top_entities_count[top_entities['PERSON'].index(ent.text) + 100] += 1
       if ent.label_ == 'PERSON': # People, including fictional.
         counts[0] += 1
       if ent.label_ == 'NORP': # Nationalities or religious or political groups.
@@ -114,7 +114,7 @@ class SemanticFeatures(Features):
         counts[15] += 1
       if ent.label_ == 'CARDINAL': # Numerals that do not fall under another type.
         counts[16] += 1
-    return counts + top_entities_count
+    return counts # # + top_entities_count
 
   def named_entities_list(self):
     if self.ne_vocabulary:

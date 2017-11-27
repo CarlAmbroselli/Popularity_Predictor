@@ -15,9 +15,9 @@ class TextFeatures(Features):
     top_term_tf = self.load_tf()
 
     df = df.copy(deep=True)
-    df['ressort'].fillna('unknown', inplace=True)
+    df['ressort_scraped'].fillna('unknown', inplace=True)
 
-    features = df.apply(lambda x: self.extract_term_frequencies(str(x['text']), top_term_tf[x['ressort']]), axis=1)
+    features = df.apply(lambda x: self.extract_term_frequencies(str(x['text']), top_term_tf[x['ressort_scraped']]), axis=1)
 
     return np.array([x[0] for x in features])
 
@@ -39,7 +39,7 @@ class TextFeatures(Features):
       count_vect = CountVectorizer()
       tfidf_transformer = TfidfTransformer()
 
-      articles = pd.read_csv('data/datasets/Tr09-16Te17/train/articles.csv', sep=',')[['text', 'ressort']]
+      articles = pd.read_csv('data/datasets/Tr14-16Te17/train/articles.csv', sep=',')[['text', 'ressort']]
       articles['ressort'].fillna('unknown', inplace=True)
 
       # Extract urlressort
@@ -63,7 +63,7 @@ class TextFeatures(Features):
 
       top_tf = {}
 
-      for label, group in articles.groupby('ressort'):
+      for label, group in articles.groupby('ressort_scraped'):
         group_count_vect = CountVectorizer(vocabulary=vocabulary)
         group_counts = group_count_vect.fit_transform(group['text'])
         group_tfidf_transformer = TfidfTransformer()

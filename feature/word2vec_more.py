@@ -8,9 +8,9 @@ from feature.features import Features
 from feature.helper import Helper
 import os
  
-class Word2Vec(Features):
+class Word2VecMore(Features):
     def __init__(self, num_dimensions=100, window_size=5):
-        super().__init__('word2vec?' + str(num_dimensions) + '*' + str(window_size))
+        super().__init__('word2vec_more?' + str(num_dimensions) + '*' + str(window_size))
         self.first_run = True
         self.num_dimensions = num_dimensions
         self.window_size = window_size
@@ -33,22 +33,22 @@ class Word2Vec(Features):
         if self.first_run:
             self.initialize_variables(df)
             self.first_run = False
-        # data = [Helper.remove_stop_and_stem(x) for x in [
-        #     df['next_read_title'],
-        #     df['next_read_kicker'],
-        #     df['title'],
-        #     df['supertitle'],
-        #     df['teaser_text'],
-        #     df['teaser_title']
-        # ]]
-        #
-        # vectors = [np.vstack(d.apply(self.acticle_to_vectors)) for d in data]
-        # return np.hstack(vectors)
+        data = [Helper.remove_stop_and_stem(x) for x in [
+            df['next_read_title'],
+            df['next_read_kicker'],
+            df['title'],
+            df['supertitle'],
+            df['teaser_text'],
+            df['teaser_title']
+        ]]
 
-        title_text = df.apply(lambda x: str(x['supertitle']) + ' ' + str(df['title']), axis=1)
-        data = Helper.remove_stop_and_stem(title_text)
-        vectors = data.apply(self.acticle_to_vectors)
-        return np.vstack(vectors)
+        vectors = [np.vstack(d.apply(self.acticle_to_vectors)) for d in data]
+        return np.hstack(vectors)
+
+        # title_text = df.apply(lambda x: str(x['supertitle']) + ' ' + str(df['title']), axis=1)
+        # data = Helper.remove_stop_and_stem(title_text)
+        # vectors = data.apply(self.acticle_to_vectors)
+        # return np.vstack(vectors)
 
     def text_to_wordlist(self, acticle):
         try:

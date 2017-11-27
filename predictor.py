@@ -15,9 +15,11 @@ from classifier.ridge_regression import RidgeRegression
 from classifier.logistic_regression import LogisticRegression
 import feature as Features
 from feature.carl.features import Features as CarlFeatures
+from feature.carl.zeit_features import ZeitFeatures#
 from sklearn.metrics import roc_curve, auc
 import code
 from feature.carl.after_publication_features import AfterPublicationFeatures
+import pickle
 
 class Predictor:
     def fit(self, df):
@@ -108,11 +110,18 @@ class Predictor:
                 roc_auc = auc(false_positive_rate, true_positive_rate)
             else:
                 roc_auc = 'n/a'
+            
+            # code.interact(local=locals())
             metrics[learner[0]] = {
-                # 'coef': np.arange(learner[1].model.coef_) if learner[0] == 'linear_regression' else None,
+                # 'coef': np.arange(learner[1].model.coef_), #if learner[0] == 'linear_regression' else None,
                 'rmse': float("%.2f" % mean_squared_error(ground_truth, predictions[learner[0]]) ** 0.5),
                 'auc': roc_auc
             }
+            try:
+                print('')
+                # pickle.dump(learner[1].model.coef_, open('coef_.pickle', "wb"), protocol=4)
+            except Exception as e:
+                print(e)
 
         self._metrics = metrics
         return metrics
@@ -138,7 +147,7 @@ class Predictor:
         for feature in features:
             if issparse(feature):
                 has_sparse = True
-        # [print(f.shape) for f in features]
+        [print(f.shape) for f in features]
         if len(features) == 1:
             feature_matrix = features[0]
         else:
@@ -146,27 +155,29 @@ class Predictor:
                 feature_matrix = sparse_hstack(features)
             else:
                 feature_matrix = hstack(features)
-        scaler = MaxAbsScaler()
-        scaled_feature_matrix = scaler.fit_transform(feature_matrix)
-        scaled_feature_matrix = normalize(scaled_feature_matrix, norm='l2', axis=0)
+        # scaler = MaxAbsScaler()
+        # scaled_feature_matrix = scaler.fit_transform(feature_matrix)
+        # scaled_feature_matrix = normalize(scaled_feature_matrix, norm='l2', axis=0)
         # return scaled_feature_matrix
+        
+        # code.interact(local=locals())
         return feature_matrix
 
     def __init__(self):
         self.always_use_these_features  = [
-            ('tsagkias/surface_features', Features.tsagkias.SurfaceFeatures()),
-            ('tsagkias/cumulative_features', Features.tsagkias.CumulativeFeatures()),
-            ('tsagkias/real_world_features', Features.tsagkias.RealWorldFeatures()),
-            ('tsagkias/text_features', Features.tsagkias.TextFeatures()),
-            ('bandari/subjectivity_features', Features.bandari.SubjectivityFeatures()),
-            ('bandari/t_density_features', Features.bandari.TDensityFeatures()),
-            ('word2vec-100', Features.Word2Vec(num_dimensions=100)),
-            ('ngram_features-(1,3)', Features.NGramFeatures((1, 3))),
-            ('doc2vec_features-100', Features.Doc2VecFeatures(num_dimensions=100)),
-            ('meta_features', Features.MetaFeatures()),
-            ('topic_features-100', Features.TopicFeatures(num_topics=100)),
-            ('semantic_features', Features.SemanticFeatures()),
-            ('other_features', CarlFeatures()),
+           #  ('tsagkias/surface_features', Features.tsagkias.SurfaceFeatures()),
+           #  ('tsagkias/cumulative_features', Features.tsagkias.CumulativeFeatures()),
+           #  ('tsagkias/real_world_features', Features.tsagkias.RealWorldFeatures()),
+           #  ('tsagkias/text_features', Features.tsagkias.TextFeatures()),
+           #  ('bandari/subjectivity_features', Features.bandari.SubjectivityFeatures()),
+           #  ('bandari/t_density_features', Features.bandari.TDensityFeatures()),
+           #  ('word2vec-100', Features.Word2Vec(num_dimensions=100)),
+           #  ('ngram_features-(1,3)', Features.NGramFeatures((1, 3))),
+           #  ('doc2vec_features-100', Features.Doc2VecFeatures(num_dimensions=100)),
+           #  ('meta_features', Features.MetaFeatures()),
+           #  ('topic_features-100', Features.TopicFeatures(num_topics=100)),
+           #  ('semantic_features', Features.SemanticFeatures()),
+           #  ('other_features', CarlFeatures()),
         ]
 
         self.features = [
@@ -185,66 +196,94 @@ class Predictor:
             # ('tsagkias/surface_features', Features.tsagkias.SurfaceFeatures()),
             # ('tsagkias/cumulative_features', Features.tsagkias.CumulativeFeatures()),
             # ('tsagkias/real_world_features', Features.tsagkias.RealWorldFeatures()),
-            # # ('tsagkias/semantic_features', Features.tsagkias.SemanticFeatures()),
+            # ('tsagkias/semantic_features', Features.tsagkias.SemanticFeatures()),
             # ('tsagkias/text_features', Features.tsagkias.TextFeatures()),
 
             # # ======== bandari ========
-            # # ('bandari/semantic_features', Features.bandari.SemanticFeatures()),
+            # ('bandari/semantic_features', Features.bandari.SemanticFeatures()),
             # ('bandari/subjectivity_features', Features.bandari.SubjectivityFeatures()),
             # ('bandari/t_density_features', Features.bandari.TDensityFeatures()),
 
             # # ========== own ===========
             # # ('subjectivity_features', Features.SubjectivityFeatures()),
             # # ('CNN', Features.CNN_Classification()),
-            # # ('word2vec-50', Features.Word2Vec(num_dimensions=50)),
+            # ('word2vec-50', Features.Word2Vec(num_dimensions=50)),
+            # ('word2vec-100/2', Features.Word2Vec(num_dimensions=100, window_size=2)),
+            # ('word2vec-100/3', Features.Word2Vec(num_dimensions=100, window_size=3)),
+            # ('word2vec-100/4', Features.Word2Vec(num_dimensions=100, window_size=4)),
+            # ('word2vec-100/5', Features.Word2Vec(num_dimensions=100, window_size=5)),
+            # ('word2vec-100/6', Features.Word2Vec(num_dimensions=100, window_size=6)),
+            # ('word2vec-100/7', Features.Word2Vec(num_dimensions=100, window_size=7)),
+            # ('word2vec-100/8', Features.Word2Vec(num_dimensions=100, window_size=8)),
             # ('word2vec-100', Features.Word2Vec(num_dimensions=100)),
-            # # ('word2vec-150', Features.Word2Vec(num_dimensions=150)),
-            # # ('word2vec-200', Features.Word2Vec(num_dimensions=200)),
-            # # ('word2vec-250', Features.Word2Vec(num_dimensions=250)),
-            # # ('word2vec-500', Features.Word2Vec(num_dimensions=500)),
-            # # ('ngram_features-(1)', Features.NGramFeatures((1,1))),
-            # # ('ngram_features-(1,2)', Features.NGramFeatures((1,2))),
-            # ('ngram_features-(1,3)', Features.NGramFeatures((1,3))),
-            # # ('ngram_features-(2)', Features.NGramFeatures((2,2))),
-            # # ('ngram_features-(2,3)', Features.NGramFeatures((2,3))),
-            # # ('ngram_features-(3)', Features.NGramFeatures((3,3))),
-            # # ('doc2vec_features-50', Features.Doc2VecFeatures(num_dimensions=50)),
+            # ('word2vec-150', Features.Word2Vec(num_dimensions=150)),
+            # ('word2vec-200', Features.Word2Vec(num_dimensions=200)),
+            # ('word2vec-250', Features.Word2Vec(num_dimensions=250)),
+            # ('word2vec-500', Features.Word2Vec(num_dimensions=500)),
+            # ('stemmed_headline_min-2_ngram_features-(1)', Features.NGramHeadlineFeatures((1,1))),
+            # ('stemmed_headline_min-2_ngram_features-(1,2)', Features.NGramHeadlineFeatures((1,2))),
+            # ('stemmed_headline_min-2_ngram_features-(1,3)', Features.NGramHeadlineFeatures((1,3))),
+            # ('stemmed_headline_min-2_ngram_features-(2)', Features.NGramHeadlineFeatures((2,2))),
+            # ('stemmed_headline_min-2_ngram_features-(2,3)', Features.NGramHeadlineFeatures((2,3))),
+            # ('stemmed_headline_min-2_ngram_features-(3)', Features.NGramHeadlineFeatures((3,3))),
+            # ('min-2_ngram_features-(1)', Features.NGramFeatures((1,1))),
+            # ('min-2_ngram_features-(1,2)', Features.NGramFeatures((1,2))),
+            # ('min-2_ngram_features-(1,3)', Features.NGramFeatures((1,3))),
+            # ('min-2_ngram_features-(2)', Features.NGramFeatures((2,2))),
+            # ('min-2_ngram_features-(2,3)', Features.NGramFeatures((2,3))),
+            # ('min-2_ngram_features-(3)', Features.NGramFeatures((3,3))),
+            # ('doc2vec_features-50', Features.Doc2VecFeatures(num_dimensions=50)),
             # ('doc2vec_features-100', Features.Doc2VecFeatures(num_dimensions=100)),
-            # # ('doc2vec_features-150', Features.Doc2VecFeatures(num_dimensions=150)),
-            # # ('doc2vec_features-200', Features.Doc2VecFeatures(num_dimensions=150)),
-            # # ('doc2vec_features-250', Features.Doc2VecFeatures(num_dimensions=250)),
-            # # ('doc2vec_features-500', Features.Doc2VecFeatures(num_dimensions=500)),
-            # # ('doc2vec_features-5000', Features.Doc2VecFeatures(num_dimensions=5000)),
+            # ('doc2vec_features-1/2', Features.Doc2VecFeatures(num_dimensions=1, window_size=2)),
+            # ('doc2vec_features-5/2', Features.Doc2VecFeatures(num_dimensions=5, window_size=2)),
+            # ('doc2vec_features-10/2', Features.Doc2VecFeatures(num_dimensions=10, window_size=2)),
+            # ('doc2vec_features-25/2', Features.Doc2VecFeatures(num_dimensions=25, window_size=2)),
+            # ('doc2vec_features-50/2', Features.Doc2VecFeatures(num_dimensions=50, window_size=2)),
+            # ('doc2vec_features-100/2', Features.Doc2VecFeatures(num_dimensions=100, window_size=2)), # BEST!!!
+            # ('doc2vec_features-100/3', Features.Doc2VecFeatures(num_dimensions=100, window_size=3)),
+            # ('doc2vec_features-100/4', Features.Doc2VecFeatures(num_dimensions=100, window_size=4)),
+            # ('doc2vec_features-100/5', Features.Doc2VecFeatures(num_dimensions=100, window_size=5)),
+            # ('doc2vec_features-100/6', Features.Doc2VecFeatures(num_dimensions=100, window_size=6)),
+            # ('doc2vec_features-100/7', Features.Doc2VecFeatures(num_dimensions=100, window_size=7)),
+            # ('doc2vec_features-100/8', Features.Doc2VecFeatures(num_dimensions=100, window_size=8)),
+            # ('doc2vec_features-150', Features.Doc2VecFeatures(num_dimensions=150)),
+            # ('doc2vec_features-200', Features.Doc2VecFeatures(num_dimensions=150)),
+            # ('doc2vec_features-250', Features.Doc2VecFeatures(num_dimensions=250)),
+            # ('doc2vec_features-500', Features.Doc2VecFeatures(num_dimensions=500)),
             # ('meta_features', Features.MetaFeatures()),
-            # # ('topic_features-50', Features.TopicFeatures(num_topics=50)),
+            # ('topic_features-50', Features.TopicFeatures(num_topics=50)),
             # ('topic_features-100', Features.TopicFeatures(num_topics=100)),
-            # # ('topic_features-150', Features.TopicFeatures(num_topics=150)),
-            # # ('topic_features-200', Features.TopicFeatures(num_topics=200)),
-            # # ('topic_features-250', Features.TopicFeatures(num_topics=250)),
-            # # ('topic_features-500', Features.TopicFeatures(num_topics=500)),
-            # ('semantic_features', Features.SemanticFeatures()),
+            # ('topic_features-150', Features.TopicFeatures(num_topics=150)),
+            # ('topic_features-200', Features.TopicFeatures(num_topics=200)),
+            # ('topic_features-250', Features.TopicFeatures(num_topics=250)),
+            # ('topic_features-500', Features.TopicFeatures(num_topics=500)),
+            ('topic_features-750', Features.TopicFeatures(num_topics=750)),
+            ('topic_features-1000', Features.TopicFeatures(num_topics=1000)),
+            # ('named_entities_features', Features.SemanticFeatures()),
             # ('other_features', CarlFeatures()),
+            # ('zeit_features_shared_on_facebook', ZeitFeatures()),
+            # ('keyword_features', Features.KeywordFeatures()),
 
-            ('after_publication_features-2', AfterPublicationFeatures(maximum_time=2)),
-            ('after_publication_features-4', AfterPublicationFeatures(maximum_time=4)),
-            ('after_publication_features-8', AfterPublicationFeatures(maximum_time=8)),
-            ('after_publication_features-16', AfterPublicationFeatures(maximum_time=16)),
-            ('after_publication_features-32', AfterPublicationFeatures(maximum_time=32)),
-            ('after_publication_features-64', AfterPublicationFeatures(maximum_time=64)),
-            ('after_publication_features-128', AfterPublicationFeatures(maximum_time=128)),
-            ('after_publication_features-256', AfterPublicationFeatures(maximum_time=256)),
-            ('after_publication_features-512', AfterPublicationFeatures(maximum_time=512)),
-            ('after_publication_features-1024', AfterPublicationFeatures(maximum_time=1024)),
-            ('after_publication_features-2048', AfterPublicationFeatures(maximum_time=2048)),
-            ('after_publication_features-4096', AfterPublicationFeatures(maximum_time=4096)),
-            ('after_publication_features-8192', AfterPublicationFeatures(maximum_time=8192)),
-            ('after_publication_features-16384', AfterPublicationFeatures(maximum_time=16384)),
-            ('after_publication_features-32768', AfterPublicationFeatures(maximum_time=32768)),
-            ('after_publication_features-65536', AfterPublicationFeatures(maximum_time=65536)),
-            ('after_publication_features-131072', AfterPublicationFeatures(maximum_time=131072)),
-            ('after_publication_features-262144', AfterPublicationFeatures(maximum_time=262144)),
-            ('after_publication_features-524288', AfterPublicationFeatures(maximum_time=524288)),
-            ('after_publication_features-1048576', AfterPublicationFeatures(maximum_time=1048576)),
+            # ('after_publication_features-2', AfterPublicationFeatures(maximum_time=2)),
+            # ('after_publication_features-4', AfterPublicationFeatures(maximum_time=4)),
+            # ('after_publication_features-8', AfterPublicationFeatures(maximum_time=8)),
+            # ('after_publication_features-16', AfterPublicationFeatures(maximum_time=16)),
+            # ('after_publication_features-32', AfterPublicationFeatures(maximum_time=32)),
+            # ('after_publication_features-64', AfterPublicationFeatures(maximum_time=64)),
+            # ('after_publication_features-128', AfterPublicationFeatures(maximum_time=128)),
+            # ('after_publication_features-256', AfterPublicationFeatures(maximum_time=256)),
+            # ('after_publication_features-512', AfterPublicationFeatures(maximum_time=512)),
+            # ('after_publication_features-1024', AfterPublicationFeatures(maximum_time=1024)),
+            # ('after_publication_features-2048', AfterPublicationFeatures(maximum_time=2048)),
+            # ('after_publication_features-4096', AfterPublicationFeatures(maximum_time=4096)),
+            # ('after_publication_features-8192', AfterPublicationFeatures(maximum_time=8192)),
+            # ('after_publication_features-16384', AfterPublicationFeatures(maximum_time=16384)),
+            # ('after_publication_features-32768', AfterPublicationFeatures(maximum_time=32768)),
+            # ('after_publication_features-65536', AfterPublicationFeatures(maximum_time=65536)),
+            # ('after_publication_features-131072', AfterPublicationFeatures(maximum_time=131072)),
+            # ('after_publication_features-262144', AfterPublicationFeatures(maximum_time=262144)),
+            # ('after_publication_features-524288', AfterPublicationFeatures(maximum_time=524288)),
+            # ('after_publication_features-1048576', AfterPublicationFeatures(maximum_time=1048576)),
         ]
 
         self.classifier = [

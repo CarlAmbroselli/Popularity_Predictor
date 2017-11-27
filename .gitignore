@@ -14,6 +14,7 @@ venv
 
 feature/cache/*.pickle
 feature/cache/doc2vec*
+feature/cache/*vectorizer*
 
 model/word2vec/GoogleNews-vectors-negative300.bin
 model/word2vec/all_lowercased_stemmed_*

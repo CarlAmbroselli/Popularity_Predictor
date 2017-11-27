@@ -4,7 +4,7 @@ import pandas as pd
 
 class RidgeRegression:
     def __init__(self):
-        self.regressor = RR(normalize=True)
+        self.regressor = RR() # RR(normalize=True)
         self.model = None
 
     def fit(self, features, ground_truth):

@@ -14,10 +14,11 @@ from gensim.models.doc2vec import TaggedDocument
 import progressbar
 
 class Doc2VecFeatures(Features):
-  def __init__(self, num_dimensions):
-    super().__init__('doc2vec_features?' + str(num_dimensions))
+  def __init__(self, num_dimensions, window_size=2):
+    super().__init__('doc2vec_features?' + str(num_dimensions) + '*' + str(window_size))
     self.model = None
     self.num_dimensions = num_dimensions
+    self.window_size = window_size
 
   def _extract_features(self, df):
     model = self.doc2vec_model()
@@ -30,7 +31,7 @@ class Doc2VecFeatures(Features):
   def doc2vec_model(self):
     if self.model is not None:
       return self.model
-    filepath = 'feature/cache/doc2vec_' + str(self.num_dimensions)
+    filepath = 'feature/cache/doc2vec_' + str(self.num_dimensions) + '_' + str(self.window_size)
     if os.path.isfile(filepath):
       self.model = doc2vec.Doc2Vec.load(filepath)
       return self.model
@@ -39,9 +40,9 @@ class Doc2VecFeatures(Features):
       print('Loading documents')
       doc_list = pd.read_csv('data/datasets/all/articles.csv', sep=',')['text']
       documents = self.get_doc(doc_list)
-      cores = 20 if multiprocessing.cpu_count() > 4 else 3
+      cores = 10 if multiprocessing.cpu_count() > 4 else 3
       print('Training model using {} cores'.format(cores))
-      model = doc2vec.Doc2Vec(documents, size=self.num_dimensions, window=8, min_count=5, workers=cores, iter=20)
+      model = doc2vec.Doc2Vec(documents, size=self.num_dimensions, window=self.window_size, min_count=5, workers=cores, iter=20)
       # model.save(filepath)
       model.delete_temporary_training_data(keep_doctags_vectors=True, keep_inference=True)
       model.save(filepath)

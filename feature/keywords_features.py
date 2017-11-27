@@ -7,9 +7,9 @@ import os
 import pickle
 from feature.helper import Helper
 
-class NGramFeatures(Features):
-  def __init__(self, ngram_range=(1,3)):
-    super().__init__('ngram_features?' + str(ngram_range))
+class KeywordFeatures(Features):
+  def __init__(self, ngram_range=(1,1)):
+    super().__init__('keywords_features?' + str(ngram_range))
     self.first_run = True
     self.ngram_range=ngram_range
 
@@ -29,19 +29,19 @@ class NGramFeatures(Features):
 
   def _extract_features(self, df):
 
-    self.count_vectorizer = self.load_cached_object('stemmed_ngram_count_vectorizer_min_2_' + str(self.ngram_range))
-    self.tfidf_transformer = self.load_cached_object('stemmed_ngram_tfidf_vectorizer_min_2_' + str(self.ngram_range))
+    self.count_vectorizer = self.load_cached_object('keyword_count_vectorizer_min_2_' + str(self.ngram_range))
+    self.tfidf_transformer = self.load_cached_object('keyword_tfidf_vectorizer_min_2_' + str(self.ngram_range))
 
     input = Helper.remove_stop_and_stem(df["text"])
     if self.count_vectorizer == None:
       self.count_vectorizer = CountVectorizer(ngram_range=self.ngram_range, min_df=2, stop_words=stopwords.words('german'))
       self.tfidf_transformer = TfidfTransformer()
       self.count_vectorizer.fit(input)
-      self.cache(self.count_vectorizer, 'stemmed_ngram_count_vectorizer_min_2_' + str(self.ngram_range))
+      self.cache(self.count_vectorizer, 'keyword_count_vectorizer_min_2_' + str(self.ngram_range))
       counts = self.count_vectorizer.transform(input)
       # pickle.dump(self.count_vectorizer.vocabulary_, open( "ngram_vocabulary_" + str(self.ngram_range) + ".pickle", "wb" ), protocol=4)
       self.tfidf_transformer.fit(counts)
-      self.cache(self.tfidf_transformer, 'stemmed_ngram_tfidf_vectorizer_min_2_' + str(self.ngram_range))
+      self.cache(self.tfidf_transformer, 'keyword_tfidf_vectorizer_min_2_' + str(self.ngram_range))
       features = self.tfidf_transformer.transform(counts)
       self.first_run = False
     else:

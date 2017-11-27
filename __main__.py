@@ -5,6 +5,7 @@ import numpy as np
 import nltk
 import os
 import json
+import code
 
 def init_nltk():
     if not os.path.exists('nltk'):
@@ -20,23 +21,30 @@ def init_nltk():
 
 def load_data(dataset='tiny'):
     train_df = pd.read_csv('data/datasets/' + dataset + '/train/articles.csv', sep=',')
-    train_df = train_df[train_df['year'] >= 2014]
     test_df = pd.read_csv('data/datasets/' + dataset + '/test/articles.csv', sep=',')
-    test_df = test_df[test_df['year'] >= 2014]
+
+    # FOR USING POST PUBLICATION FEATURES
+    # test_df_2 = pd.read_csv('data/datasets/Tr14-16Te17/test/articles.csv', sep=',')
+    # test_df = pd.merge(test_df_2, test_df[
+    #     ['comments_after_2', 'comments_after_4', 'comments_after_8', 'comments_after_16', 'comments_after_32',
+    #      'comments_after_64', 'comments_after_128', 'comments_after_256', 'comments_after_512', 'comments_after_1024',
+    #      'comments_after_2048', 'comments_after_4096', 'comments_after_8192', 'comments_after_16384',
+    #      'comments_after_32768', 'comments_after_65536', 'comments_after_131072', 'comments_after_262144',
+    #      'comments_after_524288', 'comments_after_1048576', 'url']], on='url', how='inner')
+    # train_df['has_comments'] = train_df['comment_count'] > 0
+    # high_volume = np.percentile(train_df['comment_count'], 90)
+    # print("High Volume = {}".format(high_volume))
+    # train_df['comments_top_10'] = train_df['comment_count'] > high_volume
+
+    #
     # train_df = pd.read_csv('data/datasets/' + dataset + '/train/comments.csv', sep=',')
     # test_df = pd.read_csv('data/datasets/' + dataset + '/test/comments.csv', sep=',')
     # train_df['text'] = train_df['text_de']
     # test_df['text'] = test_df['text_de']
     # train_df = train_df[train_df['ressort'] == 'karriere']
     # test_df = test_df[test_df['ressort'] == 'karriere']
-    train_df['no_comments'] = train_df['comment_count'] == 0
-    test_df['no_comments'] = test_df['comment_count'] == 0
-    train_df['has_comments'] = train_df['comment_count'] > 0
-    test_df['has_comments'] = test_df['comment_count'] > 0
-    high_volume = np.percentile(train_df['comment_count'], 90)
-    print("High Volume = {}".format(high_volume))
-    train_df['has_many_comments'] = train_df['comment_count'] > high_volume
-    test_df['has_many_comments'] = test_df['comment_count'] > high_volume
+
+
     return (train_df, test_df)
 
 def execute(dataset='tiny', individual=False):
@@ -50,8 +58,9 @@ def execute(dataset='tiny', individual=False):
     # targets = [('no_comments', 'classification'), ('has_comments', 'classification'), ('has_many_comments', 'classification'), ('comment_count', 'regression'), ('facebook_shares', 'regression')]
     # targets = [('no_comments', 'regression'), ('has_comments', 'regression'), ('has_many_comments', 'regression'), ('no_comments', 'classification'), ('has_comments', 'classification'), ('has_many_comments', 'classification'), ('comment_count', 'regression'), ('facebook_shares', 'regression'), ('comment_count_minus_last_month_average', 'regression'), ('facebook_shares_minus_last_month_average', 'regression'), ('shared_on_facebook', 'classification'), ('likes_on_facebook', 'regression'), ('comments_on_facebook', 'regression')]
 
-    targets = [('comment_count_incl_deleted', 'regression')]
-    # targets = [('has_comments', 'regression'), ('has_many_comments', 'regression')]
+    targets = [('has_comments', 'regression'), ('has_comments', 'classification'), ('comments_top_10', 'regression'), ('comments_top_10', 'classification'), ('comment_count', 'regression'), ('facebook_shares', 'regression')]
+    # target = [('comment_count', 'regression')]
+    # targets = [('facebook_shares', 'regression')]
 
     # targets = [('comment_count_minus_last_month_average', 'regression'), ('facebook_shares_minus_last_month_average', 'regression'), ('shared_on_facebook', 'classification'), ('likes_on_facebook', 'regression'), ('comments_on_facebook', 'regression')]
 
@@ -73,8 +82,11 @@ def execute(dataset='tiny', individual=False):
         print("Predict...")
         result = predictor.predict(test_df)
         result['real'] = predictor.ground_truth(test_df)
+
+        if target[0] == 'comment_count':
+            result.to_csv('result.csv')
         # print("Result:")
-        # print(result.head(5))
+        # print(result.head(100))
         try:
             results_df[target] = result['logistic regression']
             results_df[target + '_ground_truth'] = predictor.ground_truth(test_df)
@@ -108,13 +120,13 @@ def main():
         # 'YNACC-Evaluation',
         # 'YNACC',
         # 'Tr16Te17-Small',
-        'Tr16Te17',
+        # 'Tr16Te17',
         # 'Tr09-16Te17',
-        # 'Tr14-16Te17'
+        'Tr14-16Te17'
     ]
     print("Execute")
     for dataset in datasets:
-        execute(dataset, individual=True)
+        execute(dataset, individual=False)
 
 
 if __name__ == '__main__':
