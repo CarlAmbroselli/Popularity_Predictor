@@ -11,6 +11,9 @@ from feature.text_features import TextFeatures
 from feature.semantic_features import SemanticFeatures
 from feature.cnn_classification import CNN_Classification
 from feature.ngram_headline_features import NGramHeadlineFeatures
+from feature.ngram_first_page_features import NGramFirstPageFeatures
+from feature.uids_first_page_features import UidsFirstPageFeatures
+from feature.annotation_features import AnnotationFeatures
 import feature.tsagkias
 import feature.napoles
 import feature.bandari

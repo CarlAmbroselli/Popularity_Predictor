@@ -9,13 +9,15 @@ class Features(Features):
   def _extract_features(self, df):
     features = []
 
+    maximum_month = 41
     year_month = (df['year'] - 2014)*12 + df['month']
-    features.append(year_month)
-    features.append(year_month ** 2)    
+    features.append(year_month/maximum_month)
+    features.append(year_month/maximum_month ** 2)
 
+    maximum_day = 1206
     year_month_day = (df['year'] - 2014)*12*31 + df['month']*12 + df['day']
-    features.append(year_month_day)
-    features.append(year_month_day ** 2)
+    features.append(year_month_day/maximum_day)
+    features.append(year_month_day/maximum_day ** 2)
 
     weekday = df['date_first_released'].apply(lambda x: ciso8601.parse_datetime(x).weekday())
 

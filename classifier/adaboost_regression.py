@@ -1,14 +1,14 @@
-from sklearn.linear_model import LinearRegression as LR
+from sklearn.ensemble import AdaBoostRegressor as Regressor
 import numpy as np
 import pandas as pd
 
-class LinearRegression:
+class AdaboostRegression:
     def __init__(self):
-        self.lr = LR()
+        self.regressor = Regressor(random_state=42)
         self.model = None
 
     def fit(self, features, ground_truth):
-        self.model = self.lr.fit(features.fillna(), ground_truth.fillna())
+        self.model = self.regressor.fit(features, ground_truth)
 
     def predict(self, features):
         assert self.model is not None, 'Executed predict() without calling fit()'

@@ -32,7 +32,7 @@ class KeywordFeatures(Features):
     self.count_vectorizer = self.load_cached_object('keyword_count_vectorizer_min_2_' + str(self.ngram_range))
     self.tfidf_transformer = self.load_cached_object('keyword_tfidf_vectorizer_min_2_' + str(self.ngram_range))
 
-    input = Helper.remove_stop_and_stem(df["text"])
+    input =  df.tags.apply(lambda x: str(x)) #.apply(lambda x: ' '.join([y.replace(' ', '') for y in str(x).split(' , ')]))
     if self.count_vectorizer == None:
       self.count_vectorizer = CountVectorizer(ngram_range=self.ngram_range, min_df=2, stop_words=stopwords.words('german'))
       self.tfidf_transformer = TfidfTransformer()

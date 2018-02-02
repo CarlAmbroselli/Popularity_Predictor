@@ -20,12 +20,21 @@ def init_nltk():
             nltk.download(package, os.getcwd() + '/nltk')
 
 def load_data(dataset='tiny'):
-    train_df = pd.read_csv('data/datasets/' + dataset + '/train/articles.csv', sep=',')
-    test_df = pd.read_csv('data/datasets/' + dataset + '/test/articles.csv', sep=',')
+    train_df = pd.read_csv('data/datasets/' + dataset + '/train/articles_plus_comments.csv', sep=',')
+    add_df = pd.read_csv('data/datasets/' + dataset + '/test/articles_plus_comments.csv', sep=',')
+    train_df = train_df.append(add_df)
+    test_df = pd.read_csv('data/datasets/' + dataset + '/validate/articles_plus_comments.csv', sep=',')
 
     # FOR USING POST PUBLICATION FEATURES
-    # test_df_2 = pd.read_csv('data/datasets/Tr14-16Te17/test/articles.csv', sep=',')
-    # test_df = pd.merge(test_df_2, test_df[
+    # train_df = pd.read_csv('data/datasets/Tr16Te17/train/articles.csv', sep=',')
+    # train_df = pd.merge(train_df, train_df_2[
+    #     ['comments_after_2', 'comments_after_4', 'comments_after_8', 'comments_after_16', 'comments_after_32',
+    #      'comments_after_64', 'comments_after_128', 'comments_after_256', 'comments_after_512', 'comments_after_1024',
+    #      'comments_after_2048', 'comments_after_4096', 'comments_after_8192', 'comments_after_16384',
+    #      'comments_after_32768', 'comments_after_65536', 'comments_after_131072', 'comments_after_262144',
+    #      'comments_after_524288', 'comments_after_1048576', 'url']], on='url', how='inner')
+    # test_df = pd.read_csv('data/datasets/Tr16Te17/validate/articles.csv', sep=',')
+    # test_df = pd.merge(test_df, test_df_2[
     #     ['comments_after_2', 'comments_after_4', 'comments_after_8', 'comments_after_16', 'comments_after_32',
     #      'comments_after_64', 'comments_after_128', 'comments_after_256', 'comments_after_512', 'comments_after_1024',
     #      'comments_after_2048', 'comments_after_4096', 'comments_after_8192', 'comments_after_16384',
@@ -43,7 +52,9 @@ def load_data(dataset='tiny'):
     # test_df['text'] = test_df['text_de']
     # train_df = train_df[train_df['ressort'] == 'karriere']
     # test_df = test_df[test_df['ressort'] == 'karriere']
-
+    train_df['comment_count_log'] = train_df['comment_count'].apply(lambda x: np.log(x))# if np.log(x) > -1000 and np.log(x) < 100000000 else 0)
+    train_df.dropna(axis=1, how='any')
+    test_df.dropna(axis=1, how='any')
 
     return (train_df, test_df)
 
@@ -58,9 +69,11 @@ def execute(dataset='tiny', individual=False):
     # targets = [('no_comments', 'classification'), ('has_comments', 'classification'), ('has_many_comments', 'classification'), ('comment_count', 'regression'), ('facebook_shares', 'regression')]
     # targets = [('no_comments', 'regression'), ('has_comments', 'regression'), ('has_many_comments', 'regression'), ('no_comments', 'classification'), ('has_comments', 'classification'), ('has_many_comments', 'classification'), ('comment_count', 'regression'), ('facebook_shares', 'regression'), ('comment_count_minus_last_month_average', 'regression'), ('facebook_shares_minus_last_month_average', 'regression'), ('shared_on_facebook', 'classification'), ('likes_on_facebook', 'regression'), ('comments_on_facebook', 'regression')]
 
-    targets = [('has_comments', 'regression'), ('has_comments', 'classification'), ('comments_top_10', 'regression'), ('comments_top_10', 'classification'), ('comment_count', 'regression'), ('facebook_shares', 'regression')]
-    # target = [('comment_count', 'regression')]
-    # targets = [('facebook_shares', 'regression')]
+    # targets = [('has_comments', 'regression'), ('has_comments', 'classification'), ('comments_top_10', 'regression'), ('comments_top_10', 'classification'), ('comment_count', 'regression'), ('facebook_shares', 'regression')]
+    # targets = [('has_comments', 'regression'), ('comments_top_10', 'regression'), ('has_comments', 'classification')]
+    # targets = [('comments_top_10', 'regression')]
+    # targets = [('comment_count', 'regression')]
+    targets = [('comment_count_log', 'regression')]
 
     # targets = [('comment_count_minus_last_month_average', 'regression'), ('facebook_shares_minus_last_month_average', 'regression'), ('shared_on_facebook', 'classification'), ('likes_on_facebook', 'regression'), ('comments_on_facebook', 'regression')]
 
@@ -83,12 +96,12 @@ def execute(dataset='tiny', individual=False):
         result = predictor.predict(test_df)
         result['real'] = predictor.ground_truth(test_df)
 
-        if target[0] == 'comment_count':
-            result.to_csv('result.csv')
+        # if target[0] == 'comment_count':
+        # result.to_csv('result.csv')
         # print("Result:")
         # print(result.head(100))
         try:
-            results_df[target] = result['logistic regression']
+            results_df[target] = result['ridge_regression']
             results_df[target + '_ground_truth'] = predictor.ground_truth(test_df)
         except:
             pass
@@ -110,7 +123,7 @@ def execute(dataset='tiny', individual=False):
                 result['real'] = predictor.ground_truth(test_df)
                 print(json.dumps(predictor.metrics(), indent=2))
                 # print(predictor.metrics()['linear_regression']['rmse'])
-    # results_df.to_csv('results_output_tsagkias.csv')
+    # results_df.to_csv('results_evaluate_all_features.csv')
 
 def main():
     print("Init")
@@ -126,7 +139,7 @@ def main():
     ]
     print("Execute")
     for dataset in datasets:
-        execute(dataset, individual=False)
+        execute(dataset, individual=True)
 
 
 if __name__ == '__main__':

@@ -5,12 +5,13 @@ import pandas as pd
 from sklearn.metrics import precision_recall_fscore_support
 from scipy.sparse import hstack as sparse_hstack, csr_matrix, issparse
 from numpy import hstack
-from sklearn.preprocessing import normalize, MaxAbsScaler
+from sklearn.preprocessing import normalize, MaxAbsScaler, RobustScaler
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import accuracy_score
 from classifier.svr import SVR
 from classifier.linear_regression import LinearRegression
 from classifier.ridge_regression import RidgeRegression
+from classifier.lasso_regression import LassoRegression
 # from classifier.naive_bayes import NaiveBayes
 from classifier.logistic_regression import LogisticRegression
 import feature as Features
@@ -20,8 +21,18 @@ from sklearn.metrics import roc_curve, auc
 import code
 from feature.carl.after_publication_features import AfterPublicationFeatures
 import pickle
+from classifier.xgboost_classifier import XGBoostClassifier
+from classifier.adaboost_regression import AdaboostRegression
+from classifier.adaboost_classifier import AdaboostClassifier
+from sklearn.model_selection import GridSearchCV
+from scipy.stats import uniform
+from sklearn.model_selection import RandomizedSearchCV
+
 
 class Predictor:
+    def __init__(self):
+        self.scaler = None
+
     def fit(self, df):
         '''
         Generate the features from the dataframe and fit the classifiers.
@@ -29,9 +40,9 @@ class Predictor:
         ground_truth = self.ground_truth(df)
         self._training_mean = np.mean(ground_truth)
 
-
         feature_matrix = self.calculate_feature_matrix(df)
         print("...using", feature_matrix.shape[1], "features from", ", ".join([feature[0] for feature in self.features]))
+        # self.grid_search(feature_matrix, self.ground_truth(df))
         if self._useRegression and len(np.unique(ground_truth)) < 3:
             learners = self.auc_regressors
         else:
@@ -54,6 +65,23 @@ class Predictor:
         # self.thresholded_regression_metrics(df, predictions, 0.8) if self._useRegression else self.classification_metrics(df, predictions)
 
         return predictions
+
+    def grid_search(self, feature_matrix, ground_truth):
+        print("Evaluating parameters...")
+        for learner in self.regressors:
+            if learner[0] == 'ridge_regression':
+                # alphas = uniform.rvs(loc=0, scale=100, size=1000)
+                alphas = np.array([100, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1,0.1,0.01,0.001,0.0001,0])
+                grid = GridSearchCV(estimator=learner[1].regressor, param_grid=dict(alpha=alphas), n_jobs=16)
+                grid.fit(feature_matrix, ground_truth)
+                print('?'*30)
+                print('Grid Search Results')
+                print('?'*30)
+                print(grid)
+                print('best score', grid.best_score_)
+                print('best alpha', grid.best_estimator_.alpha)
+                learner[1].set_parameter(grid.best_score_)
+
 
     def thresholded_regression_metrics(self, df, predictions, threshold, metric='precision'):
         metrics = {}
@@ -100,7 +128,7 @@ class Predictor:
                 'train_mean': float("%.2f" % self.training_mean()),
                 'mean': float("%.2f" % mean),
                 'size': size,
-                'rmse (train mean)': float("%.2f" % mean_squared_error(ground_truth, np.ones((size, 1)) * self.training_mean()) ** 0.5)
+                # 'rmse (train mean)': float("%.2f" % mean_squared_error(ground_truth, np.ones((size, 1)) * self.training_mean()) ** 0.5)
             }
         }
         regressors = self.regressors if len(np.unique(ground_truth)) >= 3 else self.auc_regressors
@@ -114,12 +142,13 @@ class Predictor:
             # code.interact(local=locals())
             metrics[learner[0]] = {
                 # 'coef': np.arange(learner[1].model.coef_), #if learner[0] == 'linear_regression' else None,
-                'rmse': float("%.2f" % mean_squared_error(ground_truth, predictions[learner[0]]) ** 0.5),
+                'rmse': float("%.2f" % mean_squared_error(ground_truth, predictions[learner[0]].clip(lower=0, upper=1000)) ** 0.5),
+                'rmse_adj': float("%.2f" % mean_squared_error(df['comment_count'], predictions[learner[0]].clip(lower=0, upper=1000).apply(lambda x: np.exp(x))) ** 0.5),
                 'auc': roc_auc
             }
             try:
-                print('')
-                # pickle.dump(learner[1].model.coef_, open('coef_.pickle', "wb"), protocol=4)
+                print('intercept', learner[1].model.intercept_)
+                # pickle.dump(learner[1].model.coef_, open('results_evaluate_really_all_features_coef.pickle', "wb"), protocol=4)
             except Exception as e:
                 print(e)
 
@@ -137,7 +166,7 @@ class Predictor:
         self._useRegression = useRegression
 
     def ground_truth(self, df):
-        return df[self._ground_truth]
+        return df[self._ground_truth] if self._ground_truth in df else df['comment_count']
 
     def calculate_feature_matrix(self, df):
         features = [feature[1].extract_features(df) for feature in self.features]
@@ -155,20 +184,26 @@ class Predictor:
                 feature_matrix = sparse_hstack(features)
             else:
                 feature_matrix = hstack(features)
-        # scaler = MaxAbsScaler()
-        # scaled_feature_matrix = scaler.fit_transform(feature_matrix)
-        # scaled_feature_matrix = normalize(scaled_feature_matrix, norm='l2', axis=0)
+
+        # try:
+        #     self.scaler
+        # except:
+        #     self.scaler = RobustScaler(with_centering=False)
+        #     self.scaler.fit(feature_matrix)
+        #
+        # scaled_feature_matrix = self.scaler.transform(feature_matrix)
         # return scaled_feature_matrix
         
         # code.interact(local=locals())
+        # pickle.dump(feature_matrix, open('results_evaluate_really_all_features.pickle', "wb"), protocol=4)
         return feature_matrix
 
     def __init__(self):
         self.always_use_these_features  = [
-           #  ('tsagkias/surface_features', Features.tsagkias.SurfaceFeatures()),
-           #  ('tsagkias/cumulative_features', Features.tsagkias.CumulativeFeatures()),
-           #  ('tsagkias/real_world_features', Features.tsagkias.RealWorldFeatures()),
-           #  ('tsagkias/text_features', Features.tsagkias.TextFeatures()),
+           # ('tsagkias/surface_features', Features.tsagkias.SurfaceFeatures()),
+           # ('tsagkias/cumulative_features', Features.tsagkias.CumulativeFeatures()),
+           # ('tsagkias/real_world_features', Features.tsagkias.RealWorldFeatures()),
+           # ('tsagkias/text_features', Features.tsagkias.TextFeatures()),
            #  ('bandari/subjectivity_features', Features.bandari.SubjectivityFeatures()),
            #  ('bandari/t_density_features', Features.bandari.TDensityFeatures()),
            #  ('word2vec-100', Features.Word2Vec(num_dimensions=100)),
@@ -194,8 +229,8 @@ class Predictor:
 
             # # ======== tsagkias ========
             # ('tsagkias/surface_features', Features.tsagkias.SurfaceFeatures()),
-            # ('tsagkias/cumulative_features', Features.tsagkias.CumulativeFeatures()),
-            # ('tsagkias/real_world_features', Features.tsagkias.RealWorldFeatures()),
+            ('tsagkias/cumulative_features', Features.tsagkias.CumulativeFeatures()),
+            ('tsagkias/real_world_features', Features.tsagkias.RealWorldFeatures()),
             # ('tsagkias/semantic_features', Features.tsagkias.SemanticFeatures()),
             # ('tsagkias/text_features', Features.tsagkias.TextFeatures()),
 
@@ -204,7 +239,7 @@ class Predictor:
             # ('bandari/subjectivity_features', Features.bandari.SubjectivityFeatures()),
             # ('bandari/t_density_features', Features.bandari.TDensityFeatures()),
 
-            # # ========== own ===========
+            # ========== own ===========
             # # ('subjectivity_features', Features.SubjectivityFeatures()),
             # # ('CNN', Features.CNN_Classification()),
             # ('word2vec-50', Features.Word2Vec(num_dimensions=50)),
@@ -216,13 +251,13 @@ class Predictor:
             # ('word2vec-100/7', Features.Word2Vec(num_dimensions=100, window_size=7)),
             # ('word2vec-100/8', Features.Word2Vec(num_dimensions=100, window_size=8)),
             # ('word2vec-100', Features.Word2Vec(num_dimensions=100)),
-            # ('word2vec-150', Features.Word2Vec(num_dimensions=150)),
+            # ('word2vec-150', Features.Word2Vec(num_dimensions=150, window_size=5)),
             # ('word2vec-200', Features.Word2Vec(num_dimensions=200)),
             # ('word2vec-250', Features.Word2Vec(num_dimensions=250)),
             # ('word2vec-500', Features.Word2Vec(num_dimensions=500)),
             # ('stemmed_headline_min-2_ngram_features-(1)', Features.NGramHeadlineFeatures((1,1))),
             # ('stemmed_headline_min-2_ngram_features-(1,2)', Features.NGramHeadlineFeatures((1,2))),
-            # ('stemmed_headline_min-2_ngram_features-(1,3)', Features.NGramHeadlineFeatures((1,3))),
+            ('stemmed_headline_min-2_ngram_features-(1,3)', Features.NGramHeadlineFeatures((1,3))),
             # ('stemmed_headline_min-2_ngram_features-(2)', Features.NGramHeadlineFeatures((2,2))),
             # ('stemmed_headline_min-2_ngram_features-(2,3)', Features.NGramHeadlineFeatures((2,3))),
             # ('stemmed_headline_min-2_ngram_features-(3)', Features.NGramHeadlineFeatures((3,3))),
@@ -232,6 +267,19 @@ class Predictor:
             # ('min-2_ngram_features-(2)', Features.NGramFeatures((2,2))),
             # ('min-2_ngram_features-(2,3)', Features.NGramFeatures((2,3))),
             # ('min-2_ngram_features-(3)', Features.NGramFeatures((3,3))),
+            ('min-2_stemmed_ngram_features-(1)', Features.NGramFeatures((1,1), stem=True)),
+            # ('min-2_stemmed_ngram_features-(1,2)', Features.NGramFeatures((1,2), stem=True)),
+            # ('min-2_stemmed_ngram_features-(1,3)', Features.NGramFeatures((1,3), stem=True)),
+            # ('min-2_stemmed_ngram_features-(2)', Features.NGramFeatures((2,2), stem=True)),
+            # ('min-2_stemmed_ngram_features-(2,3)', Features.NGramFeatures((2,3), stem=True)),
+            # ('min-2_stemmed_ngram_features-(3)', Features.NGramFeatures((3,3), stem=True)),
+            # ('min-2_first_page_stemmed_ngram_features-(1)', Features.NGramFirstPageFeatures((1,1), stem=True, replies=False)),
+            # %% ('min-2_first_page_stemmed_ngram_features-(1,2)', Features.NGramFirstPageFeatures((1,2), stem=True, replies=False)),
+            # $$ ('min-2_first_page_stemmed_ngram_features-(1,3)', Features.NGramFirstPageFeatures((1,3), stem=True, replies=False)),
+            # ('min-2_first_page_stemmed_ngram_features-(2)', Features.NGramFirstPageFeatures((2,2), stem=True, replies=False)),
+            # ('min-2_first_page_stemmed_ngram_features-(2,3)', Features.NGramFirstPageFeatures((2,3), stem=True, replies=False)),
+            # ('min-2_first_page_stemmed_ngram_features-(3)', Features.NGramFirstPageFeatures((3,3), stem=True, replies=False)),
+            # ('uids_first_page_features', Features.UidsFirstPageFeatures(replies=False)),
             # ('doc2vec_features-50', Features.Doc2VecFeatures(num_dimensions=50)),
             # ('doc2vec_features-100', Features.Doc2VecFeatures(num_dimensions=100)),
             # ('doc2vec_features-1/2', Features.Doc2VecFeatures(num_dimensions=1, window_size=2)),
@@ -239,7 +287,7 @@ class Predictor:
             # ('doc2vec_features-10/2', Features.Doc2VecFeatures(num_dimensions=10, window_size=2)),
             # ('doc2vec_features-25/2', Features.Doc2VecFeatures(num_dimensions=25, window_size=2)),
             # ('doc2vec_features-50/2', Features.Doc2VecFeatures(num_dimensions=50, window_size=2)),
-            # ('doc2vec_features-100/2', Features.Doc2VecFeatures(num_dimensions=100, window_size=2)), # BEST!!!
+            ('doc2vec_features-100/2', Features.Doc2VecFeatures(num_dimensions=100, window_size=2)), # BEST!!!
             # ('doc2vec_features-100/3', Features.Doc2VecFeatures(num_dimensions=100, window_size=3)),
             # ('doc2vec_features-100/4', Features.Doc2VecFeatures(num_dimensions=100, window_size=4)),
             # ('doc2vec_features-100/5', Features.Doc2VecFeatures(num_dimensions=100, window_size=5)),
@@ -256,13 +304,14 @@ class Predictor:
             # ('topic_features-150', Features.TopicFeatures(num_topics=150)),
             # ('topic_features-200', Features.TopicFeatures(num_topics=200)),
             # ('topic_features-250', Features.TopicFeatures(num_topics=250)),
-            # ('topic_features-500', Features.TopicFeatures(num_topics=500)),
-            ('topic_features-750', Features.TopicFeatures(num_topics=750)),
-            ('topic_features-1000', Features.TopicFeatures(num_topics=1000)),
+            ('topic_features-500', Features.TopicFeatures(num_topics=500)),
+            # ('topic_features-750', Features.TopicFeatures(num_topics=750)),
+            # ('topic_features-1000', Features.TopicFeatures(num_topics=1000)),
             # ('named_entities_features', Features.SemanticFeatures()),
-            # ('other_features', CarlFeatures()),
-            # ('zeit_features_shared_on_facebook', ZeitFeatures()),
-            # ('keyword_features', Features.KeywordFeatures()),
+            ('time_features', CarlFeatures()),
+            ('zeit_features', ZeitFeatures()),
+            ('keyword_features', Features.KeywordFeatures()),
+            # ('annotation_features', Features.AnnotationFeatures()),
 
             # ('after_publication_features-2', AfterPublicationFeatures(maximum_time=2)),
             # ('after_publication_features-4', AfterPublicationFeatures(maximum_time=4)),
@@ -288,14 +337,18 @@ class Predictor:
 
         self.classifier = [
             ('logistic regression', LogisticRegression()),
+            # ('xgboost classification', XGBoostClassifier()),
+            # ('adaboost classification', AdaboostClassifier()),
         ]
 
         self.regressors = [
             # ('logistic regression', LogisticRegression()),
             # ('svr', SVR()),
-            ('linear_regression', LinearRegression()),
-            ('ridge_regression', RidgeRegression()),
-        ]        
+            # ('linear_regression', LinearRegression()),
+            # ('ridge_regression', RidgeRegression()),
+            ('lasso_regression', LassoRegression()),
+            # ('adaboost_regression', AdaboostRegression()),
+        ]
 
         self.auc_regressors = [
             ('logistic regression', LogisticRegression(probabilities=True)),

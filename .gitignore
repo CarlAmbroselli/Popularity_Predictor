@@ -23,3 +23,5 @@ feature/cache/topicmodel_dict
 
 preprocessing/dataset_ynacc.ipynb
 *.csv
+
+*.pickle
